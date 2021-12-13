@@ -1,5 +1,7 @@
 import React, { useCallback } from "react";
 import { getAuth, signOut } from "firebase/auth";
+import { AppBar, Button, Toolbar } from "@mui/material";
+import { Box } from "@mui/system";
 
 const auth = getAuth();
 
@@ -13,9 +15,15 @@ const Header = () => {
   }, []);
 
   return (
-    <div>
-      <button onClick={handleSignOut}>Sign Out</button>
-    </div>
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static">
+        <Toolbar>
+          <Button color="inherit" onClick={handleSignOut}>
+            Sign Out
+          </Button>
+        </Toolbar>
+      </AppBar>
+    </Box>
   );
 };
 export default Header;
