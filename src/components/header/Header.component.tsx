@@ -4,10 +4,15 @@ import { AppBar, Button, Toolbar } from "@mui/material";
 import { Box } from "@mui/system";
 import MenuIcon from "@mui/icons-material/Menu";
 import Menu from "./Menu.component";
+import { PAGES } from "./constants";
 
 const auth = getAuth();
 
-const Header = () => {
+type HeaderProps = {
+  setPage: (nextPage: keyof typeof PAGES) => void;
+};
+
+const Header: React.FC<HeaderProps> = ({ setPage }) => {
   const [open, setOpen] = React.useState(false);
 
   const handleSignOut = useCallback(async () => {
@@ -24,7 +29,7 @@ const Header = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <Menu open={open} setOpen={setOpen} />
+      <Menu open={open} setOpen={setOpen} setPage={setPage} />
       <AppBar position="static">
         <Toolbar>
           <Button color="inherit" onClick={handleOpenMenu}>

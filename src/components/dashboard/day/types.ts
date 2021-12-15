@@ -1,4 +1,4 @@
-import { DayEvent } from "../dayEvent/types";
+import { DayEvent } from "./dayEvent/types";
 
 type DayComponentProps = {
   events: DayEvent[],

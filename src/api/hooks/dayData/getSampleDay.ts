@@ -1,4 +1,4 @@
-import { DayEvent, DayEventType } from "../../../components/dashboard/dayEvent/types";
+import { DayEvent, DayEventType } from "../../../components/dashboard/day/dayEvent/types";
 
 export const getSampleDay = (): DayEvent[] => {
   return [
