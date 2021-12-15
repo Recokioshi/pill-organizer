@@ -1,13 +1,14 @@
 import { getAuth } from "firebase/auth";
-import { FirebaseApp } from 'firebase/app';
+import { FirebaseApp } from "firebase/app";
 
 import { useEffect, useState } from "react";
 
-import './App.css';
+import "./App.css";
 import { firebaseApp } from "../../config/firebase";
-import { useAuthState } from 'react-firebase-hooks/auth';
-import Home from "../home/Home.component";
+import { useAuthState } from "react-firebase-hooks/auth";
 import Login from "../login/Login.component";
+import { WithHeader } from "../header/withHeader";
+import DashboardComponent from "../dashboard/Dashboard.component";
 
 const auth = getAuth(firebaseApp);
 
@@ -25,12 +26,16 @@ const App = () => {
     return <div>Loading ...</div>;
   }
   if (user) {
-    return <Home />
+    return (
+      <WithHeader>
+        <DashboardComponent />
+      </WithHeader>
+    );
   }
   if (error) {
-    return <div>{error.message}</div>
+    return <div>{error.message}</div>;
   }
-  return <Login />
+  return <Login />;
 };
 
 export default App;

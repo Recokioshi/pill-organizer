@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import MedicationIcon from "@mui/icons-material/Medication";
 import GoogleIcon from "@mui/icons-material/Google";
-import { Box, padding } from "@mui/system";
+import { Box } from "@mui/system";
 
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
