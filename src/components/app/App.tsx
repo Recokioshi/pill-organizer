@@ -1,4 +1,6 @@
-import { getAuth } from "firebase/auth";
+import React from "react";
+import { getAuth, User } from "firebase/auth";
+
 import { FirebaseApp } from "firebase/app";
 
 import { useEffect, useState } from "react";
@@ -11,6 +13,7 @@ import { WithHeader } from "../header/withHeader";
 import DashboardComponent from "../dashboard/Dashboard.component";
 
 const auth = getAuth(firebaseApp);
+export const UserContext = React.createContext<User | null>(null);
 
 const App = () => {
   const [app, setApp] = useState<FirebaseApp | null>(null);
@@ -27,9 +30,11 @@ const App = () => {
   }
   if (user) {
     return (
-      <WithHeader>
-        <DashboardComponent />
-      </WithHeader>
+      <UserContext.Provider value={user}>
+        <WithHeader>
+          <DashboardComponent />
+        </WithHeader>
+      </UserContext.Provider>
     );
   }
   if (error) {

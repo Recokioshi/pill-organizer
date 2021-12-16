@@ -1,8 +1,41 @@
 import { Box } from "@mui/system";
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { UserContext } from "../../app/App";
+import { DayEvent } from "../../../api/hooks/dayEvents";
+import { TDayEvent } from "../../../api/types/dayEvent";
+import { DayEventCard } from "./dayEventCard/DayEventCard.component";
 
 const EventManager = () => {
-  return <Box>Event Manager</Box>;
+  const user = useContext(UserContext);
+
+  const [events, updateEvents] = useState<TDayEvent[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      const unsubscribe = DayEvent(user!).listenDayEvents(updateEvents);
+      return () => {
+        unsubscribe();
+      };
+    }
+  }, [user]);
+
+  const eventsComponents = events?.map((event: TDayEvent, index) => (
+    <DayEventCard event={event} key={`${event.title}-${index}`} />
+  ));
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        width: "100%",
+        justifyContent: "space-evenly",
+        flexWrap: "wrap",
+      }}
+    >
+      {/* <Button onClick={onClickHandler}>Get event</Button> */}
+      {[<DayEventCard />, ...eventsComponents]}
+    </Box>
+  );
 };
 
 export default EventManager;
