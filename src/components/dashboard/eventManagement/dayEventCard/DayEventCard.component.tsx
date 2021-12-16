@@ -20,11 +20,13 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({ event }) => {
   const user = useContext(UserContext);
   const [title, setTitle] = useState(event?.title || "");
   const [description, setDescription] = useState(event?.description || "");
+  const [imageUrl, setImageUrl] = useState(event?.imageUrl || "");
   const [selectedFile, setSelectedFile] = useState<Blob | null>(null);
 
   const handleCapture = ({ target }: any) => {
     var file = target.files[0];
     setSelectedFile(file);
+    setImageUrl(window.URL.createObjectURL(file));
   };
 
   const handleInputChange = useCallback(
@@ -38,35 +40,43 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({ event }) => {
   const addCardHandler = useCallback(
     async (event) => {
       event.preventDefault();
-      await DayEvent(user!).setDayEvent({
-        title,
-        description,
-        imageUrl: "",
-      });
+      await DayEvent(user!).setDayEvent(
+        {
+          title,
+          description,
+          imageUrl: "",
+        },
+        selectedFile
+      );
+      setTitle("");
+      setDescription("");
+      setImageUrl("");
+      setSelectedFile(null);
     },
-    [description, title, user]
+    [description, selectedFile, title, user]
   );
+
+  const deleteCardHandler = useCallback(async () => {
+    await DayEvent(user!).deleteDayEvent(event!.id!);
+  }, [event, user]);
 
   return (
     <Box sx={{ padding: 2, maxWidth: 300 }}>
       <Card variant="outlined">
         <form onSubmit={addCardHandler}>
-          {selectedFile && (
+          {(selectedFile || event?.imageUrl) && (
             <CardMedia
               component="img"
               height="140"
-              image={window.URL.createObjectURL(selectedFile)}
+              image={imageUrl}
               alt="thumbnail"
             />
           )}
           <CardContent>
             <Box
-              component="form"
               sx={{
                 "& .MuiTextField-root": { m: 1, width: "25ch" },
               }}
-              noValidate
-              autoComplete="off"
               display="flex"
               flexDirection="column"
             >
@@ -74,7 +84,6 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({ event }) => {
                 required
                 id="title"
                 label="Name"
-                defaultValue=""
                 disabled={!!event}
                 value={title}
                 onInput={handleInputChange(setTitle)}
@@ -85,7 +94,6 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({ event }) => {
                 disabled={!!event}
                 rows={5}
                 label="description"
-                defaultValue=""
                 value={description}
                 onInput={handleInputChange(setDescription)}
               />
@@ -103,13 +111,18 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({ event }) => {
             </Box>
           </CardContent>
 
-          {!event && (
-            <CardActions>
+          <CardActions>
+            {!event && (
               <Button type="submit" size="small">
                 Add
               </Button>
-            </CardActions>
-          )}
+            )}
+            {event && (
+              <Button size="small" onClick={deleteCardHandler}>
+                Delete
+              </Button>
+            )}
+          </CardActions>
         </form>
       </Card>
     </Box>
