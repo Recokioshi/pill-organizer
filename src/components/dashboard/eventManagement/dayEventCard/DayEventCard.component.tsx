@@ -4,6 +4,7 @@ import {
   CardActions,
   CardContent,
   CardMedia,
+  LinearProgress,
   TextField,
 } from "@mui/material";
 import { Box } from "@mui/system";
@@ -23,6 +24,10 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({ event }) => {
   const [imageUrl, setImageUrl] = useState(event?.imageUrl || "");
   const [selectedFile, setSelectedFile] = useState<Blob | null>(null);
 
+  const { upload, progress, error, uploading } = DayEvent(
+    user!
+  ).useSetDayEvent();
+
   const handleCapture = ({ target }: any) => {
     var file = target.files[0];
     setSelectedFile(file);
@@ -40,7 +45,7 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({ event }) => {
   const addCardHandler = useCallback(
     async (event) => {
       event.preventDefault();
-      await DayEvent(user!).setDayEvent(
+      upload(
         {
           title,
           description,
@@ -53,7 +58,7 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({ event }) => {
       setImageUrl("");
       setSelectedFile(null);
     },
-    [description, selectedFile, title, user]
+    [description, selectedFile, title, upload]
   );
 
   const deleteCardHandler = useCallback(async () => {
@@ -71,6 +76,9 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({ event }) => {
               image={imageUrl}
               alt="thumbnail"
             />
+          )}
+          {uploading && (
+            <LinearProgress variant="determinate" value={progress} />
           )}
           <CardContent>
             <Box
@@ -105,6 +113,7 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({ event }) => {
                     hidden
                     accept="image/jpeg"
                     onChange={handleCapture}
+                    disabled={uploading}
                   />
                 </Button>
               )}
@@ -113,7 +122,7 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({ event }) => {
 
           <CardActions>
             {!event && (
-              <Button type="submit" size="small">
+              <Button type="submit" size="small" disabled={uploading}>
                 Add
               </Button>
             )}
