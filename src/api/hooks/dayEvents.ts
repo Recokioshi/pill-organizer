@@ -57,7 +57,7 @@ export const DayEvent = (user: User) => {
     getDayEvent: async (id: string) => {
       return await getDoc(doc(dayEventsRef, id));
     },
-    useSetDayEvent: () => {
+    useSetDayEvent: (onFinishCallback: () => void = () => {}) => {
       const [progress, setProgress] = useState<number>(0);
       const [error, setError] = useState<StorageError | null>(null);
       const [uploading, setUploading] = useState<boolean>(false);
@@ -71,7 +71,7 @@ export const DayEvent = (user: User) => {
         if (file) {
           const imgRef = ref(spaceRef, `${id}.jpg`);
           uploadFile(imgRef, file, setProgress, setError, setUploading, (imageUrl) => {
-            setDoc(doc(dayEventsRef, id), {...eventToSave, imageUrl}).catch(setError);
+            setDoc(doc(dayEventsRef, id), {...eventToSave, imageUrl}).then(onFinishCallback).catch(setError);
           });
         } else {
           setDoc(doc(dayEventsRef, id), eventToSave).catch(setError);

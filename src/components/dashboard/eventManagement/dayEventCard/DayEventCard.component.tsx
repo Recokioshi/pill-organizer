@@ -25,9 +25,14 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({ event }) => {
   const [imageUrl, setImageUrl] = useState(event?.imageUrl || "");
   const [selectedFile, setSelectedFile] = useState<Blob | null>(null);
 
-  const { upload, progress, error, uploading } = DayEvent(
-    user!
-  ).useSetDayEvent();
+  const { upload, progress, error, uploading } = DayEvent(user!).useSetDayEvent(
+    () => {
+      setTitle("");
+      setDescription("");
+      setImageUrl("");
+      setSelectedFile(null);
+    }
+  );
 
   const handleCapture = ({ target }: any) => {
     var file = target.files[0];
@@ -54,10 +59,6 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({ event }) => {
         },
         selectedFile
       );
-      setTitle("");
-      setDescription("");
-      setImageUrl("");
-      setSelectedFile(null);
     },
     [description, selectedFile, title, upload]
   );
