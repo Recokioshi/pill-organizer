@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Card,
   CardActions,
@@ -67,6 +68,7 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({ event }) => {
 
   return (
     <Box sx={{ padding: 2, maxWidth: 300 }}>
+      {error && <Alert severity="error">{error.message}</Alert>}
       <Card variant="outlined">
         <form onSubmit={addCardHandler}>
           {(selectedFile || event?.imageUrl) && (
