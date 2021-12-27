@@ -11,6 +11,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import Login from "../login/Login.component";
 import { WithHeader } from "../header/withHeader";
 import DashboardComponent from "../dashboard/Dashboard.component";
+import { Splash } from "./Splash.component";
 
 const auth = getAuth(firebaseApp);
 export const UserContext = React.createContext<User | null>(null);
@@ -26,7 +27,7 @@ const App = () => {
   }, [app]);
 
   if (loading) {
-    return <div>Loading ...</div>;
+    return <Splash />;
   }
   if (user) {
     return (
