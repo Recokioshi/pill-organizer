@@ -6,9 +6,11 @@ import { Box } from "@mui/material";
 import { PAGES } from "../header/constants";
 import { WithHeaderProps } from "../header/withHeader";
 import EventManager from "./eventManagement/EventManager.component";
+import GroupManager from "./groupManagement/GroupManager.component";
 
 const DayPage = () => <Day events={getSampleDay()} />;
 const EventManagerPage = () => <EventManager />;
+const GroupManagerPage = () => <GroupManager />;
 
 type DashboardComponentProps = {} & Partial<WithHeaderProps>;
 
@@ -22,6 +24,9 @@ const DashboardComponent: React.FC<DashboardComponentProps> = ({
       break;
     case PAGES.DAY:
       pageToRender = <DayPage />;
+      break;
+    case PAGES.GROUP_MANAGER:
+      pageToRender = <GroupManagerPage />;
       break;
     default:
       pageToRender = <div>ERROR - Unknown page</div>;

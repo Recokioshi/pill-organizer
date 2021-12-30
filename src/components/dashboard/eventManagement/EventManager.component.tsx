@@ -28,7 +28,7 @@ const EventManager = () => {
       sx={{
         display: "flex",
         width: "100%",
-        justifyContent: "space-evenly",
+        justifyContent: "left",
         flexWrap: "wrap",
       }}
     >

@@ -9,6 +9,7 @@ import {
 import React, { MouseEventHandler, useCallback } from "react";
 import BlurCircularIcon from "@mui/icons-material/BlurCircular";
 import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
+import GroupWorkIcon from "@mui/icons-material/GroupWork";
 import { PAGES } from "./constants";
 
 type MenuProps = {
@@ -43,7 +44,16 @@ const Menu: React.FC<MenuProps> = ({ open, setOpen, setPage }) => {
             <ListItemIcon>
               <BlurCircularIcon />
             </ListItemIcon>
-            <ListItemText primary="Manager" />
+            <ListItemText primary="Pills" />
+          </ListItem>
+          <ListItem
+            button
+            onClick={getEventHandlerForSetPage(PAGES.GROUP_MANAGER)}
+          >
+            <ListItemIcon>
+              <GroupWorkIcon />
+            </ListItemIcon>
+            <ListItemText primary="Groups" />
           </ListItem>
           <ListItem button onClick={getEventHandlerForSetPage(PAGES.DAY)}>
             <ListItemIcon>
