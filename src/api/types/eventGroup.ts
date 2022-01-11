@@ -7,4 +7,5 @@ export type TEventGroup = {
   childrenEvents?: DocumentReference[];
   childrenGroups?: DocumentReference[];
   effectiveTime?: string;
+  master: boolean;
 }

@@ -24,14 +24,16 @@ const GroupManagerComponent = () => {
 
   const groupsComponents = useMemo(
     () =>
-      groups?.map((eventGroup: TEventGroup, index) => (
-        <Box key={`${eventGroup.id}-${index}`}>
-          <EventGroupCard
-            eventGroup={eventGroup}
-            openNextGroup={openNextGroup}
-          />
-        </Box>
-      )),
+      groups
+        ?.filter(({ master }) => master)
+        .map((eventGroup: TEventGroup, index) => (
+          <Box key={`${eventGroup.id}-${index}`}>
+            <EventGroupCard
+              eventGroup={eventGroup}
+              openNextGroup={openNextGroup}
+            />
+          </Box>
+        )),
     [groups, openNextGroup]
   );
 
@@ -43,6 +45,7 @@ const GroupManagerComponent = () => {
           groups.find(({ id }) => id === groupsStack[groupsStack.length - 1])!
         }
         handleReturnGroup={handleReturnGroup}
+        handleNextGroup={openNextGroup}
       />
     ) : (
       <Box
@@ -53,10 +56,13 @@ const GroupManagerComponent = () => {
           flexWrap: "wrap",
         }}
       >
-        {[<EventGroupCard key={"newEventGroupCard"} />, ...groupsComponents]}
+        {[
+          <EventGroupCard key={"newEventGroupCard"} master />,
+          ...groupsComponents,
+        ]}
       </Box>
     );
-  }, [groups, groupsComponents, groupsStack, handleReturnGroup]);
+  }, [groups, groupsComponents, groupsStack, handleReturnGroup, openNextGroup]);
 
   return (
     <Box

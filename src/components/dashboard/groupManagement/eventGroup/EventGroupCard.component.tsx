@@ -14,10 +14,12 @@ import { UserContext } from "../../../app/App";
 type EventGroupProps = {
   eventGroup?: TEventGroup;
   openNextGroup?: (nextGroup: TEventGroup) => void;
+  master?: boolean;
 };
 export const EventGroupCard: React.FC<EventGroupProps> = ({
   eventGroup,
   openNextGroup,
+  master = false,
 }) => {
   const user = useContext(UserContext);
   const [name, setName] = useState(eventGroup?.name || "");
@@ -35,13 +37,22 @@ export const EventGroupCard: React.FC<EventGroupProps> = ({
       childrenEvents,
       childrenGroups,
       effectiveTime,
+      master,
     });
     setName("");
     setDescription("");
     setChildredEvents([]);
     setChildredGroups([]);
     setEffectiveTime("");
-  }, [childrenEvents, childrenGroups, description, effectiveTime, name, user]);
+  }, [
+    childrenEvents,
+    childrenGroups,
+    description,
+    effectiveTime,
+    master,
+    name,
+    user,
+  ]);
 
   const handleOpenNextGroup = useCallback(() => {
     console.log("handleOpenNextGroup");
