@@ -33,7 +33,7 @@ const EventManager = () => {
       }}
     >
       {/* <Button onClick={onClickHandler}>Get event</Button> */}
-      {[<DayEventCard />, ...eventsComponents]}
+      {[<DayEventCard key={"newDayEventCard"} />, ...eventsComponents]}
     </Box>
   );
 };

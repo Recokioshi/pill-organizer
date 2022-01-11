@@ -13,12 +13,17 @@ import { UserContext } from "../../../app/App";
 
 type EventGroupProps = {
   eventGroup?: TEventGroup;
+  openNextGroup?: (nextGroup: TEventGroup) => void;
 };
-export const EventGroupCard: React.FC<EventGroupProps> = ({ eventGroup }) => {
+export const EventGroupCard: React.FC<EventGroupProps> = ({
+  eventGroup,
+  openNextGroup,
+}) => {
   const user = useContext(UserContext);
   const [name, setName] = useState(eventGroup?.name || "");
   const [description, setDescription] = useState(eventGroup?.description || "");
-  const [childrenDocs, setChildredDocs] = useState([]);
+  const [childrenEvents, setChildredEvents] = useState([]);
+  const [childrenGroups, setChildredGroups] = useState([]);
   const [effectiveTime, setEffectiveTime] = useState(
     eventGroup?.effectiveTime || ""
   );
@@ -27,14 +32,24 @@ export const EventGroupCard: React.FC<EventGroupProps> = ({ eventGroup }) => {
     await EventGroup(user!).setEventGroup({
       name,
       description,
-      childrenDocs,
+      childrenEvents,
+      childrenGroups,
       effectiveTime,
     });
     setName("");
     setDescription("");
-    setChildredDocs([]);
+    setChildredEvents([]);
+    setChildredGroups([]);
     setEffectiveTime("");
-  }, [childrenDocs, description, effectiveTime, name, user]);
+  }, [childrenEvents, childrenGroups, description, effectiveTime, name, user]);
+
+  const handleOpenNextGroup = useCallback(() => {
+    console.log("handleOpenNextGroup");
+    if (openNextGroup && eventGroup) {
+      console.log("open");
+      openNextGroup(eventGroup);
+    }
+  }, [eventGroup, openNextGroup]);
 
   const handleInputChange = useCallback(
     (valueSetter: React.Dispatch<React.SetStateAction<string>>) =>
@@ -60,7 +75,7 @@ export const EventGroupCard: React.FC<EventGroupProps> = ({ eventGroup }) => {
     <Box sx={{ padding: 2, maxWidth: 300 }}>
       <Card variant="outlined">
         <form onSubmit={addCardHandler}>
-          <CardContent>
+          <CardContent onClick={handleOpenNextGroup}>
             <Box
               sx={{
                 "& .MuiTextField-root": { m: 1, width: "25ch" },

@@ -4,6 +4,7 @@ export type TEventGroup = {
   id?: string;
   name: string;
   description?: string;
-  childrenDocs?: DocumentReference[];
+  childrenEvents?: DocumentReference[];
+  childrenGroups?: DocumentReference[];
   effectiveTime?: string;
 }

@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from "uuid";
 import { firestore, storage } from "../../config/firebase"
 import { TDayEvent } from "../types/dayEvent";
 
+export const getEventsRef = (user: User) => collection(firestore, "dayEvents", user.uid, "events");
+
 type UploadFile = (
   imgRef: StorageReference,
   file: Blob,
@@ -39,7 +41,7 @@ const uploadFile: UploadFile = (imgRef, file, setProgress, setError, setUploadin
 };
 
 export const DayEvent = (user: User) => {
-  const dayEventsRef = collection(firestore, "dayEvents", user.uid, "events");
+  const dayEventsRef = getEventsRef(user);
   const spaceRef = ref(storage, 'eventImages');
 
   return {
