@@ -29,11 +29,17 @@ const EventRow: React.FC<EventRowProps> = ({
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "row",
+        padding: 1,
+        cursor: "pointer",
+        "&:hover": {
+          backgroundColor: "grey.300",
+        },
       }}
       onClick={eventSelectHandler}
     >
       <img
         src={event?.imageUrl}
+        width={50}
         height={50}
         alt={`${event?.title}-thumbnail`}
       />
@@ -78,9 +84,13 @@ export const EventsEditorComponent: React.FC<EventsEditorComponentProps> = ({
   return (
     <Box
       sx={{
+        position: "fixed",
+        bottom: 50,
+        padding: 3,
         display: "flex",
         width: "100%",
         flexDirection: "column",
+        backgroundColor: "grey.200",
       }}
     >
       {eventsComponents}

@@ -100,13 +100,6 @@ export const EventGroupCard: React.FC<EventGroupProps> = ({
                 value={description}
                 onInput={handleInputChange(setDescription)}
               />
-              <TextField
-                id="effectiveTime"
-                label="Time of day"
-                disabled={!!eventGroup}
-                value={effectiveTime}
-                onInput={handleInputChange(setEffectiveTime)}
-              />
             </Box>
           </CardContent>
 

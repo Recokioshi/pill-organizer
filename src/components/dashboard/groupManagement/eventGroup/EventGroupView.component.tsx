@@ -37,26 +37,22 @@ const EventGroupFooter: React.FC<EventGroupFooterProps> = ({
   <Box
     sx={{
       position: "fixed",
-      bottom: 10,
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-evenly",
+      alignItems: "center",
+      bottom: 0,
       width: 1,
-      bgcolor: "gray.1",
+      height: 50,
+      bgcolor: "grey.400",
     }}
   >
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-evenly",
-        width: 1,
-      }}
-    >
-      <Button variant="outlined" onClick={onManageChildEventsHandler}>
-        Manage pills
-      </Button>
-      <Button variant="outlined" onClick={onManageChildGroupsHandler}>
-        Manage child groups
-      </Button>
-    </Box>
+    <Button variant="outlined" onClick={onManageChildEventsHandler}>
+      Manage pills
+    </Button>
+    <Button variant="outlined" onClick={onManageChildGroupsHandler}>
+      Manage child groups
+    </Button>
   </Box>
 );
 
