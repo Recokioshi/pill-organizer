@@ -1,23 +1,12 @@
 import { Box } from "@mui/system";
-import React, { useContext, useEffect, useState } from "react";
-import { UserContext } from "../../app/App";
-import { DayEvent } from "../../../api/hooks/dayEvents";
+import React, { useContext, useMemo } from "react";
 import { TDayEvent } from "../../../api/types/dayEvent";
 import { DayEventCard } from "./dayEventCard/DayEventCard.component";
+import { UserDataContext } from "../Dashboard.component";
 
 const EventManager = () => {
-  const user = useContext(UserContext);
-
-  const [events, updateEvents] = useState<TDayEvent[]>([]);
-
-  useEffect(() => {
-    if (user) {
-      const unsubscribe = DayEvent(user!).listenDayEvents(updateEvents);
-      return () => {
-        unsubscribe();
-      };
-    }
-  }, [user]);
+  const userData = useContext(UserDataContext);
+  const events = useMemo(() => userData?.events || [], [userData]);
 
   const eventsComponents = events?.map((event: TDayEvent, index) => (
     <DayEventCard event={event} key={`${event.title}-${index}`} />

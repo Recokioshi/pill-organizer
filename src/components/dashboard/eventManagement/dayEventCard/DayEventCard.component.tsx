@@ -16,9 +16,13 @@ import { UserContext } from "../../../app/App";
 
 type DayEventCardProps = {
   event?: TDayEvent;
+  readonly?: boolean;
 };
 
-export const DayEventCard: React.FC<DayEventCardProps> = ({ event }) => {
+export const DayEventCard: React.FC<DayEventCardProps> = ({
+  event,
+  readonly,
+}) => {
   const user = useContext(UserContext);
   const [title, setTitle] = useState(event?.title || "");
   const [description, setDescription] = useState(event?.description || "");
@@ -122,19 +126,20 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({ event }) => {
               )}
             </Box>
           </CardContent>
-
-          <CardActions>
-            {!event && (
-              <Button type="submit" size="small" disabled={uploading}>
-                Add
-              </Button>
-            )}
-            {event && (
-              <Button size="small" onClick={deleteCardHandler}>
-                Delete
-              </Button>
-            )}
-          </CardActions>
+          {!readonly && (
+            <CardActions>
+              {!event && (
+                <Button type="submit" size="small" disabled={uploading}>
+                  Add
+                </Button>
+              )}
+              {event && (
+                <Button size="small" onClick={deleteCardHandler}>
+                  Delete
+                </Button>
+              )}
+            </CardActions>
+          )}
         </form>
       </Card>
     </Box>

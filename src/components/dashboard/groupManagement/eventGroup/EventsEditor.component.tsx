@@ -1,11 +1,11 @@
 import { Box, Typography } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-import React, { useContext, useEffect, useState } from "react";
-import { DayEvent } from "../../../../api/hooks/dayEvents";
+import React, { useContext, useMemo } from "react";
 import { EventGroup } from "../../../../api/hooks/eventGroups";
 import { TDayEvent } from "../../../../api/types/dayEvent";
 import { TEventGroup } from "../../../../api/types/eventGroup";
+import { UserDataContext } from "../../Dashboard.component";
 import { UserContext } from "../../../app/App";
 
 type EventRowProps = {
@@ -53,17 +53,8 @@ export const EventsEditorComponent: React.FC<EventsEditorComponentProps> = ({
   eventGroup,
 }) => {
   const user = useContext(UserContext);
-
-  const [events, updateEvents] = useState<TDayEvent[]>([]);
-
-  useEffect(() => {
-    if (user) {
-      const unsubscribe = DayEvent(user!).listenDayEvents(updateEvents);
-      return () => {
-        unsubscribe();
-      };
-    }
-  }, [user]);
+  const userData = useContext(UserDataContext);
+  const events = useMemo(() => userData?.events || [], [userData]);
 
   const handleEventSelect = (eventId: string) => async () => {
     if (eventGroup.childrenEvents?.some(({ id }) => id === eventId)) {
