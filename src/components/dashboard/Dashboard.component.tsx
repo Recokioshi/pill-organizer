@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 
-import Day from "./day/Day.component";
-import { getSampleDay } from "../../api/hooks/dayData/getSampleDay";
+// import Day from "./day/Day.component";
+// import { getSampleDay } from "../../api/hooks/dayData/getSampleDay";
 import { Box } from "@mui/material";
 import { PAGES } from "../header/constants";
 import { WithHeaderProps } from "../header/withHeader";
@@ -13,7 +13,7 @@ import { DayEvent } from "../../api/hooks/dayEvents";
 import { UserContext } from "../app/App";
 import { EventGroup } from "../../api/hooks/eventGroups";
 
-const DayPage = () => <Day events={getSampleDay()} />;
+//const DayPage = () => <Day events={getSampleDay()} />;
 const EventManagerPage = () => <EventManager />;
 const GroupManagerPage = () => <GroupManager />;
 

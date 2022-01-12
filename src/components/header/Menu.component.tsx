@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import React, { MouseEventHandler, useCallback } from "react";
 import BlurCircularIcon from "@mui/icons-material/BlurCircular";
-import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
+//import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
 import GroupWorkIcon from "@mui/icons-material/GroupWork";
 import { PAGES } from "./constants";
 
