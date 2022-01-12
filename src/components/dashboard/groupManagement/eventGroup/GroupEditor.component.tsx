@@ -69,34 +69,30 @@ const GroupRow: React.FC<GroupRowProps> = ({
   group,
   isIncluded,
   deleteGroupHandler,
-}) => {
-  console.log("isIncluded", isIncluded);
-
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        width: "100%",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "row",
-        padding: 1,
-        cursor: "pointer",
-        "&:hover": {
-          backgroundColor: "grey.300",
-        },
-      }}
-    >
-      <Typography variant="h6">{group?.name}</Typography>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={deleteGroupHandler}
-        startIcon={<DeleteIcon />}
-      ></Button>
-    </Box>
-  );
-};
+}) => (
+  <Box
+    sx={{
+      display: "flex",
+      width: "100%",
+      justifyContent: "center",
+      alignItems: "center",
+      flexDirection: "row",
+      padding: 1,
+      cursor: "pointer",
+      "&:hover": {
+        backgroundColor: "grey.300",
+      },
+    }}
+  >
+    <Typography variant="h6">{group?.name}</Typography>
+    <Button
+      variant="contained"
+      color="primary"
+      onClick={deleteGroupHandler}
+      startIcon={<DeleteIcon />}
+    ></Button>
+  </Box>
+);
 
 type GroupsEditorComponentProps = {
   eventGroup: TEventGroup;

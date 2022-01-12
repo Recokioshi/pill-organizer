@@ -9,6 +9,7 @@ import {
   TextField,
 } from "@mui/material";
 import { Box } from "@mui/system";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import React, { useCallback, useContext, useState } from "react";
 import { DayEvent } from "../../../../api/hooks/dayEvents";
 import { TDayEvent } from "../../../../api/types/dayEvent";
@@ -17,11 +18,13 @@ import { UserContext } from "../../../app/App";
 type DayEventCardProps = {
   event?: TDayEvent;
   readonly?: boolean;
+  finished?: boolean;
 };
 
 export const DayEventCard: React.FC<DayEventCardProps> = ({
   event,
   readonly,
+  finished,
 }) => {
   const user = useContext(UserContext);
   const [title, setTitle] = useState(event?.title || "");
@@ -107,7 +110,7 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({
                 id="description"
                 multiline
                 disabled={!!event}
-                rows={5}
+                maxRows={4}
                 label="description"
                 value={description}
                 onInput={handleInputChange(setDescription)}
@@ -141,6 +144,16 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({
             </CardActions>
           )}
         </form>
+        {finished && (
+          <Box
+            sx={{
+              position: "relative",
+              bottom: "10%",
+            }}
+          >
+            <CheckBoxIcon />
+          </Box>
+        )}
       </Card>
     </Box>
   );

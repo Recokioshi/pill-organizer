@@ -18,38 +18,34 @@ const EventRow: React.FC<EventRowProps> = ({
   event,
   isIncluded,
   eventSelectHandler,
-}) => {
-  console.log("isIncluded", isIncluded);
-
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        width: "100%",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "row",
-        padding: 1,
-        cursor: "pointer",
-        "&:hover": {
-          backgroundColor: "grey.300",
-        },
-      }}
-      onClick={eventSelectHandler}
-    >
-      <img
-        src={event?.imageUrl}
-        width={50}
-        height={50}
-        alt={`${event?.title}-thumbnail`}
-      />
-      <Typography variant="h6">
-        {event?.title}
-        {isIncluded ? <CheckCircleOutlineIcon /> : <RadioButtonUncheckedIcon />}
-      </Typography>
-    </Box>
-  );
-};
+}) => (
+  <Box
+    sx={{
+      display: "flex",
+      width: "100%",
+      justifyContent: "center",
+      alignItems: "center",
+      flexDirection: "row",
+      padding: 1,
+      cursor: "pointer",
+      "&:hover": {
+        backgroundColor: "grey.300",
+      },
+    }}
+    onClick={eventSelectHandler}
+  >
+    <img
+      src={event?.imageUrl}
+      width={50}
+      height={50}
+      alt={`${event?.title}-thumbnail`}
+    />
+    <Typography variant="h6">
+      {event?.title}
+      {isIncluded ? <CheckCircleOutlineIcon /> : <RadioButtonUncheckedIcon />}
+    </Typography>
+  </Box>
+);
 
 type EventsEditorComponentProps = {
   eventGroup: TEventGroup;

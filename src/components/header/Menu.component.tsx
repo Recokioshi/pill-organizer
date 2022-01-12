@@ -55,12 +55,12 @@ const Menu: React.FC<MenuProps> = ({ open, setOpen, setPage }) => {
             </ListItemIcon>
             <ListItemText primary="Groups" />
           </ListItem>
-          <ListItem button onClick={getEventHandlerForSetPage(PAGES.DAY)}>
+          {/* <ListItem button onClick={getEventHandlerForSetPage(PAGES.DAY)}>
             <ListItemIcon>
               <ViewTimelineIcon />
             </ListItemIcon>
             <ListItemText primary="Day" />
-          </ListItem>
+          </ListItem> */}
         </List>
       </Box>
     </Drawer>

@@ -4,4 +4,4 @@ export const PAGES = {
   GROUP_MANAGER: 'GROUP_MANAGER',
 } as const;
 
-export const DEFAULT_PAGE = PAGES.DAY;
+export const DEFAULT_PAGE = PAGES.GROUP_MANAGER;

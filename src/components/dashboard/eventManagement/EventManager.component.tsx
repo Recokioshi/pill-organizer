@@ -22,7 +22,7 @@ const EventManager = () => {
       }}
     >
       {/* <Button onClick={onClickHandler}>Get event</Button> */}
-      {[<DayEventCard key={"newDayEventCard"} />, ...eventsComponents]}
+      {[...eventsComponents, <DayEventCard key={"newDayEventCard"} />]}
     </Box>
   );
 };

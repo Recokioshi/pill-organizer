@@ -24,8 +24,6 @@ export const EventGroupCard: React.FC<EventGroupProps> = ({
   const user = useContext(UserContext);
   const [name, setName] = useState(eventGroup?.name || "");
   const [description, setDescription] = useState(eventGroup?.description || "");
-  const [childrenEvents, setChildredEvents] = useState([]);
-  const [childrenGroups, setChildredGroups] = useState([]);
   const [effectiveTime, setEffectiveTime] = useState(
     eventGroup?.effectiveTime || ""
   );
@@ -34,30 +32,16 @@ export const EventGroupCard: React.FC<EventGroupProps> = ({
     await EventGroup(user!).setEventGroup({
       name,
       description,
-      childrenEvents,
-      childrenGroups,
       effectiveTime,
       master,
     });
     setName("");
     setDescription("");
-    setChildredEvents([]);
-    setChildredGroups([]);
     setEffectiveTime("");
-  }, [
-    childrenEvents,
-    childrenGroups,
-    description,
-    effectiveTime,
-    master,
-    name,
-    user,
-  ]);
+  }, [description, effectiveTime, master, name, user]);
 
   const handleOpenNextGroup = useCallback(() => {
-    console.log("handleOpenNextGroup");
     if (openNextGroup && eventGroup) {
-      console.log("open");
       openNextGroup(eventGroup);
     }
   }, [eventGroup, openNextGroup]);

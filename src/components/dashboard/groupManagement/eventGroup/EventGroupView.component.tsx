@@ -1,29 +1,35 @@
 import { Box, Button, Typography } from "@mui/material";
 import React, { useContext, useMemo, useState } from "react";
+import { EventGroup } from "../../../../api/hooks/eventGroups";
 import { TEventGroup } from "../../../../api/types/eventGroup";
+import { UserContext } from "../../../app/App";
 import { UserDataContext } from "../../Dashboard.component";
 import { DayEventCard } from "../../eventManagement/dayEventCard/DayEventCard.component";
 import { EventsEditorComponent } from "./EventsEditor.component";
 import { GroupsEditorComponent } from "./GroupEditor.component";
 
 type EventGroupHeaderProps = {
-  name: string;
+  names: string[];
   handleReturnGroup: () => void;
+  handleReset: () => void;
 };
 const EventGroupHeader: React.FC<EventGroupHeaderProps> = ({
-  name,
+  names,
   handleReturnGroup,
+  handleReset,
 }) => (
   <Box
     sx={{
       display: "flex",
       flexDirection: "row",
-      justifyContent: "center",
+      justifyContent: "space-between",
       alignItems: "center",
+      width: 1,
     }}
   >
     <Button onClick={handleReturnGroup}>Back</Button>
-    <Typography>{name}</Typography>
+    <Typography>{names.join(" > ")}</Typography>
+    <Button onClick={handleReset}>Reset</Button>
   </Box>
 );
 
@@ -44,8 +50,9 @@ const EventGroupFooter: React.FC<EventGroupFooterProps> = ({
       alignItems: "center",
       bottom: 0,
       width: 1,
-      height: 50,
       bgcolor: "grey.400",
+      paddingBottom: 2,
+      paddingTop: 1,
     }}
   >
     <Button variant="outlined" onClick={onManageChildEventsHandler}>
@@ -73,9 +80,9 @@ const SubGroupsList: React.FC<SubGroupsListProps> = ({
       flexDirection: "row",
       justifyContent: "space-evenly",
       alignItems: "center",
-      bottom: 50,
+      flexWrap: "wrap",
+      bottom: 57,
       width: 1,
-      height: 50,
       bgcolor: "grey.100",
     }}
   >
@@ -89,14 +96,17 @@ const SubGroupsList: React.FC<SubGroupsListProps> = ({
 
 type EventGroupViewProps = {
   eventGroup: TEventGroup;
+  groupNamesInStack: string[];
   handleReturnGroup: () => void;
   handleNextGroup: (nextGroup: TEventGroup) => void;
 };
 const EventGroupView: React.FC<EventGroupViewProps> = ({
   eventGroup,
+  groupNamesInStack,
   handleReturnGroup,
   handleNextGroup,
 }) => {
+  const user = useContext(UserContext);
   const userData = useContext(UserDataContext);
   const events = useMemo(() => userData?.events || [], [userData]);
   const groups = useMemo(() => userData?.groups || [], [userData]);
@@ -108,6 +118,18 @@ const EventGroupView: React.FC<EventGroupViewProps> = ({
   };
   const onToggleGroupsManager = () => {
     setGroupsManagerVisible(!groupsManagerVisible);
+  };
+
+  const handleEventFinish = (eventId: string) => async () => {
+    if (eventGroup.finishedEvents?.includes(eventId)) {
+      await EventGroup(user!).removeFinishedEvent(eventGroup.id!, eventId);
+    } else {
+      await EventGroup(user!).addFinishedEvent(eventGroup.id!, eventId);
+    }
+  };
+
+  const handleResetFinished = async () => {
+    await EventGroup(user!).resetFinishedEvents(eventGroup.id!);
   };
 
   const childrenGroups: TEventGroup[] = useMemo(
@@ -123,7 +145,14 @@ const EventGroupView: React.FC<EventGroupViewProps> = ({
       eventGroup.childrenEvents?.find(({ id }) => id === eventId)
     )
     .map((event, index) => (
-      <DayEventCard event={event} key={`${event.title}-${index}`} readonly />
+      <Box onClick={handleEventFinish(event.id!)}>
+        <DayEventCard
+          event={event}
+          key={`${event.title}-${index}`}
+          readonly
+          finished={eventGroup.finishedEvents?.includes(event.id!)}
+        />
+      </Box>
     ));
 
   return (
@@ -143,17 +172,25 @@ const EventGroupView: React.FC<EventGroupViewProps> = ({
         }}
       >
         <EventGroupHeader
-          name={eventGroup.name}
+          names={groupNamesInStack}
           handleReturnGroup={handleReturnGroup}
+          handleReset={handleResetFinished}
         />
       </Box>
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "row",
+          marginBottom: 15,
         }}
       >
-        {eventsComponents}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "wrap",
+          }}
+        >
+          {eventsComponents}
+        </Box>
       </Box>
       {eventsManagerVisible && (
         <EventsEditorComponent eventGroup={eventGroup} />

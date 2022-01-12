@@ -9,7 +9,15 @@ const GroupManagerComponent = () => {
   const userData = useContext(UserDataContext);
   const groups = useMemo(() => userData?.groups || [], [userData]);
   const [groupsStack, setGroupsStack] = useState<string[]>([]);
-  console.log(groupsStack);
+
+  const groupNamesInStack = useMemo(
+    () =>
+      groupsStack.map(
+        (groupId) => groups.find(({ id }) => groupId === id)?.name || "unknown"
+      ),
+    [groupsStack, groups]
+  );
+
   const openNextGroup = useCallback(
     (nextGroup: TEventGroup) => {
       setGroupsStack([...groupsStack, nextGroup.id!]);
@@ -18,7 +26,6 @@ const GroupManagerComponent = () => {
   );
 
   const handleReturnGroup = useCallback(() => {
-    console.log("handleReturnGroup");
     setGroupsStack(groupsStack.length ? [...groupsStack].slice(0, -1) : []);
   }, [groupsStack]);
 
@@ -38,12 +45,12 @@ const GroupManagerComponent = () => {
   );
 
   const componentToRender = useMemo(() => {
-    console.log("rewrite componentToRender");
     return groupsStack.length ? (
       <EventGroupView
         eventGroup={
           groups.find(({ id }) => id === groupsStack[groupsStack.length - 1])!
         }
+        groupNamesInStack={groupNamesInStack}
         handleReturnGroup={handleReturnGroup}
         handleNextGroup={openNextGroup}
       />
@@ -57,12 +64,19 @@ const GroupManagerComponent = () => {
         }}
       >
         {[
-          <EventGroupCard key={"newEventGroupCard"} master />,
           ...groupsComponents,
+          <EventGroupCard key={"newEventGroupCard"} master />,
         ]}
       </Box>
     );
-  }, [groups, groupsComponents, groupsStack, handleReturnGroup, openNextGroup]);
+  }, [
+    groupNamesInStack,
+    groups,
+    groupsComponents,
+    groupsStack,
+    handleReturnGroup,
+    openNextGroup,
+  ]);
 
   return (
     <Box

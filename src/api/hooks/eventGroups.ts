@@ -26,8 +26,11 @@ export const EventGroup = (user: User) => {
 
   const setEventGroup = async (eventGroup: TEventGroup) => {
     const id = uuidv4();
-    const groupToSave = {
+    const groupToSave: TEventGroup = {
       ...eventGroup,
+      childrenEvents: eventGroup.childrenEvents || [],
+      childrenGroups: eventGroup.childrenGroups || [],
+      finishedEvents: eventGroup.finishedEvents || [],
       id,
     }
     
@@ -76,6 +79,7 @@ export const EventGroup = (user: User) => {
         description: "",
         childrenEvents: [],
         childrenGroups: [],
+        finishedEvents: [],
         effectiveTime: "",
       });
       if(newGroupId){
@@ -100,6 +104,36 @@ export const EventGroup = (user: User) => {
     }
   };
 
+  const addFinishedEvent = async (eventGroupId: string, finishedEventId: string) => {
+    try {
+      await updateDoc(doc(eventGroupsRef, eventGroupId), {
+        finishedEvents: arrayUnion(finishedEventId),
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const removeFinishedEvent = async (eventGroupId: string, removedEventId: string) => {
+    try {
+      await updateDoc(doc(eventGroupsRef, eventGroupId), {
+        finishedEvents: arrayRemove(removedEventId),
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const resetFinishedEvents = async (eventGroupId: string) => {
+    try {
+      await updateDoc(doc(eventGroupsRef, eventGroupId), {
+        finishedEvents: [],
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  
   return {
     listenEventGroups,
     getEventGroup,
@@ -109,5 +143,8 @@ export const EventGroup = (user: User) => {
     removeEventFromGroup,
     addGroupToGroup,
     removeGroupFromGroup,
+    addFinishedEvent,
+    removeFinishedEvent,
+    resetFinishedEvents,
   };
 }

@@ -46,9 +46,9 @@ const DashboardComponent: React.FC<DashboardComponentProps> = ({
     case PAGES.EVENT_MANAGER:
       pageToRender = <EventManagerPage />;
       break;
-    case PAGES.DAY:
-      pageToRender = <DayPage />;
-      break;
+    // case PAGES.DAY:
+    //   pageToRender = <DayPage />;
+    //   break;
     case PAGES.GROUP_MANAGER:
       pageToRender = <GroupManagerPage />;
       break;
