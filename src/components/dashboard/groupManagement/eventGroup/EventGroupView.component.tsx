@@ -1,10 +1,13 @@
 import { Box, Button, Typography } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import React, { useContext, useMemo, useState } from "react";
 import { EventGroup } from "../../../../api/hooks/eventGroups";
 import { TEventGroup } from "../../../../api/types/eventGroup";
 import { UserContext } from "../../../app/App";
 import { UserDataContext } from "../../Dashboard.component";
 import { DayEventCard } from "../../eventManagement/dayEventCard/DayEventCard.component";
+import { EventGroupList } from "./EventGroupList.component";
 import { EventsEditorComponent } from "./EventsEditor.component";
 import { GroupsEditorComponent } from "./GroupEditor.component";
 
@@ -27,15 +30,19 @@ const EventGroupHeader: React.FC<EventGroupHeaderProps> = ({
       width: 1,
     }}
   >
-    <Button onClick={handleReturnGroup}>Back</Button>
+    <Button onClick={handleReturnGroup}>
+      <ArrowBackIcon />
+    </Button>
     <Typography>{names.join(" > ")}</Typography>
-    <Button onClick={handleReset}>Reset</Button>
+    <Button onClick={handleReset}>
+      <RestartAltIcon />
+    </Button>
   </Box>
 );
 
 type EventGroupFooterProps = {
-  onManageChildEventsHandler: () => void;
-  onManageChildGroupsHandler: () => void;
+  onManageChildEventsHandler: (() => void) | null;
+  onManageChildGroupsHandler: (() => void) | null;
 };
 const EventGroupFooter: React.FC<EventGroupFooterProps> = ({
   onManageChildEventsHandler,
@@ -55,42 +62,16 @@ const EventGroupFooter: React.FC<EventGroupFooterProps> = ({
       paddingTop: 1,
     }}
   >
-    <Button variant="outlined" onClick={onManageChildEventsHandler}>
-      Manage pills
-    </Button>
-    <Button variant="outlined" onClick={onManageChildGroupsHandler}>
-      Manage child groups
-    </Button>
-  </Box>
-);
-
-type SubGroupsListProps = {
-  groups: TEventGroup[];
-  handleGroupSelect: (group: TEventGroup) => void;
-};
-
-const SubGroupsList: React.FC<SubGroupsListProps> = ({
-  groups,
-  handleGroupSelect,
-}) => (
-  <Box
-    sx={{
-      position: "fixed",
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "space-evenly",
-      alignItems: "center",
-      flexWrap: "wrap",
-      bottom: 57,
-      width: 1,
-      bgcolor: "grey.100",
-    }}
-  >
-    {groups.map((group) => (
-      <Button key={group.id} onClick={() => handleGroupSelect(group)}>
-        {group.name}
+    {onManageChildEventsHandler && (
+      <Button variant="outlined" onClick={onManageChildEventsHandler}>
+        Manage pills
       </Button>
-    ))}
+    )}
+    {onManageChildGroupsHandler && (
+      <Button variant="outlined" onClick={onManageChildGroupsHandler}>
+        Manage child groups
+      </Button>
+    )}
   </Box>
 );
 
@@ -98,13 +79,15 @@ type EventGroupViewProps = {
   eventGroup: TEventGroup;
   groupNamesInStack: string[];
   handleReturnGroup: () => void;
-  handleNextGroup: (nextGroup: TEventGroup) => void;
+  handleNextGroup: (nextGroup: TEventGroup) => () => void;
+  deleteHandler: (nextGroup: TEventGroup) => () => void;
 };
 const EventGroupView: React.FC<EventGroupViewProps> = ({
   eventGroup,
   groupNamesInStack,
   handleReturnGroup,
   handleNextGroup,
+  deleteHandler,
 }) => {
   const user = useContext(UserContext);
   const userData = useContext(UserDataContext);
@@ -180,6 +163,7 @@ const EventGroupView: React.FC<EventGroupViewProps> = ({
       <Box
         sx={{
           marginBottom: 15,
+          width: 1,
         }}
       >
         <Box
@@ -187,9 +171,24 @@ const EventGroupView: React.FC<EventGroupViewProps> = ({
             display: "flex",
             flexDirection: "row",
             flexWrap: "wrap",
+            width: 1,
           }}
         >
           {eventsComponents}
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            flexWrap: "wrap",
+            width: 1,
+          }}
+        >
+          <EventGroupList
+            groups={childrenGroups}
+            openNextGroupHandler={handleNextGroup}
+            deleteHandler={deleteHandler}
+          />
         </Box>
       </Box>
       {eventsManagerVisible && (
@@ -198,15 +197,13 @@ const EventGroupView: React.FC<EventGroupViewProps> = ({
       {groupsManagerVisible && (
         <GroupsEditorComponent eventGroup={eventGroup} />
       )}
-      {!eventsManagerVisible && !groupsManagerVisible && (
-        <SubGroupsList
-          groups={childrenGroups}
-          handleGroupSelect={handleNextGroup}
-        />
-      )}
       <EventGroupFooter
-        onManageChildEventsHandler={onToggleEventsManager}
-        onManageChildGroupsHandler={onToggleGroupsManager}
+        onManageChildEventsHandler={
+          !eventGroup?.childrenGroups?.length ? onToggleEventsManager : null
+        }
+        onManageChildGroupsHandler={
+          !eventGroup?.childrenEvents?.length ? onToggleGroupsManager : null
+        }
       />
     </Box>
   );

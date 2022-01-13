@@ -1,11 +1,5 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  TextField,
-  Button,
-  CardActions,
-} from "@mui/material";
+import { Box, TextField, Button } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import { useContext, useState, useCallback } from "react";
 import { EventGroup } from "../../../../api/hooks/eventGroups";
 import { TEventGroup } from "../../../../api/types/eventGroup";
@@ -23,28 +17,16 @@ export const EventGroupCard: React.FC<EventGroupProps> = ({
 }) => {
   const user = useContext(UserContext);
   const [name, setName] = useState(eventGroup?.name || "");
-  const [description, setDescription] = useState(eventGroup?.description || "");
-  const [effectiveTime, setEffectiveTime] = useState(
-    eventGroup?.effectiveTime || ""
-  );
 
   const upload = useCallback(async () => {
     await EventGroup(user!).setEventGroup({
       name,
-      description,
-      effectiveTime,
+      description: "",
+      effectiveTime: "",
       master,
     });
     setName("");
-    setDescription("");
-    setEffectiveTime("");
-  }, [description, effectiveTime, master, name, user]);
-
-  const handleOpenNextGroup = useCallback(() => {
-    if (openNextGroup && eventGroup) {
-      openNextGroup(eventGroup);
-    }
-  }, [eventGroup, openNextGroup]);
+  }, [master, name, user]);
 
   const handleInputChange = useCallback(
     (valueSetter: React.Dispatch<React.SetStateAction<string>>) =>
@@ -62,56 +44,31 @@ export const EventGroupCard: React.FC<EventGroupProps> = ({
     [upload]
   );
 
-  const deleteCardHandler = useCallback(async () => {
-    await EventGroup(user!).deleteEventGroup(eventGroup!.id!);
-  }, [eventGroup, user]);
-
   return (
-    <Box sx={{ padding: 2, maxWidth: 300 }}>
-      <Card variant="outlined">
-        <form onSubmit={addCardHandler}>
-          <CardContent onClick={handleOpenNextGroup}>
-            <Box
-              sx={{
-                "& .MuiTextField-root": { m: 1, width: "25ch" },
-              }}
-              display="flex"
-              flexDirection="column"
-            >
-              <TextField
-                required
-                id="name"
-                label="Name"
-                disabled={!!eventGroup}
-                value={name}
-                onInput={handleInputChange(setName)}
-              />
-              <TextField
-                id="description"
-                multiline
-                disabled={!!eventGroup}
-                rows={5}
-                label="description"
-                value={description}
-                onInput={handleInputChange(setDescription)}
-              />
-            </Box>
-          </CardContent>
-
-          <CardActions>
-            {!eventGroup && (
-              <Button type="submit" size="small">
-                Add
-              </Button>
-            )}
-            {eventGroup && (
-              <Button size="small" onClick={deleteCardHandler}>
-                Delete
-              </Button>
-            )}
-          </CardActions>
-        </form>
-      </Card>
+    <Box sx={{ width: 1 }}>
+      <form onSubmit={addCardHandler}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            width: 1,
+            justifyContent: "space-between",
+            "& .MuiTextField-root": { m: 1, width: "25ch" },
+          }}
+        >
+          <TextField
+            required
+            id="name"
+            label="Name"
+            disabled={!!eventGroup}
+            value={name}
+            onInput={handleInputChange(setName)}
+          />
+          <Button type="submit" size="small">
+            <AddIcon />
+          </Button>
+        </Box>
+      </form>
     </Box>
   );
 };

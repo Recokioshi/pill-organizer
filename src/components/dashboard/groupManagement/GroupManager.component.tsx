@@ -1,11 +1,15 @@
 import { Box } from "@mui/material";
 import { useContext, useState, useCallback, useMemo } from "react";
+import { EventGroup } from "../../../api/hooks/eventGroups";
 import { TEventGroup } from "../../../api/types/eventGroup";
+import { UserContext } from "../../app/App";
 import { UserDataContext } from "../Dashboard.component";
 import { EventGroupCard } from "./eventGroup/EventGroupCard.component";
 import EventGroupView from "./eventGroup/EventGroupView.component";
+import { EventGroupList } from "./eventGroup/EventGroupList.component";
 
 const GroupManagerComponent = () => {
+  const user = useContext(UserContext);
   const userData = useContext(UserDataContext);
   const groups = useMemo(() => userData?.groups || [], [userData]);
   const [groupsStack, setGroupsStack] = useState<string[]>([]);
@@ -19,7 +23,7 @@ const GroupManagerComponent = () => {
   );
 
   const openNextGroup = useCallback(
-    (nextGroup: TEventGroup) => {
+    (nextGroup: TEventGroup) => () => {
       setGroupsStack([...groupsStack, nextGroup.id!]);
     },
     [groupsStack]
@@ -29,19 +33,16 @@ const GroupManagerComponent = () => {
     setGroupsStack(groupsStack.length ? [...groupsStack].slice(0, -1) : []);
   }, [groupsStack]);
 
-  const groupsComponents = useMemo(
-    () =>
-      groups
-        ?.filter(({ master }) => master)
-        .map((eventGroup: TEventGroup, index) => (
-          <Box key={`${eventGroup.id}-${index}`}>
-            <EventGroupCard
-              eventGroup={eventGroup}
-              openNextGroup={openNextGroup}
-            />
-          </Box>
-        )),
-    [groups, openNextGroup]
+  const deleteCardHandler = useCallback(
+    (eventGroup) => async () => {
+      await EventGroup(user!).deleteEventGroup(eventGroup!.id!);
+    },
+    [user]
+  );
+
+  const groupsToDisplay = useMemo(
+    () => groups?.filter(({ master }) => master),
+    [groups]
   );
 
   const componentToRender = useMemo(() => {
@@ -53,6 +54,7 @@ const GroupManagerComponent = () => {
         groupNamesInStack={groupNamesInStack}
         handleReturnGroup={handleReturnGroup}
         handleNextGroup={openNextGroup}
+        deleteHandler={deleteCardHandler}
       />
     ) : (
       <Box
@@ -61,19 +63,23 @@ const GroupManagerComponent = () => {
           width: "100%",
           justifyContent: "left",
           flexWrap: "wrap",
+          flexDirection: "column",
         }}
       >
-        {[
-          ...groupsComponents,
-          <EventGroupCard key={"newEventGroupCard"} master />,
-        ]}
+        <EventGroupList
+          groups={groupsToDisplay}
+          deleteHandler={deleteCardHandler}
+          openNextGroupHandler={openNextGroup}
+        />
+        <EventGroupCard key={"newEventGroupCard"} master />
       </Box>
     );
   }, [
+    deleteCardHandler,
     groupNamesInStack,
     groups,
-    groupsComponents,
     groupsStack,
+    groupsToDisplay,
     handleReturnGroup,
     openNextGroup,
   ]);
