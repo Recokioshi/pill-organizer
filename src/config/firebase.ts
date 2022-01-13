@@ -1,5 +1,5 @@
 import { getApp, getApps, initializeApp } from "@firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
@@ -16,3 +16,4 @@ const firebaseConfig = {
 export const firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 export const firestore = getFirestore();
 export const storage = getStorage(firebaseApp);
+enableIndexedDbPersistence(firestore);

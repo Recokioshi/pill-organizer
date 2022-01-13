@@ -121,7 +121,7 @@ export const EventGroupList: React.FC<EventGroupListProps> = ({
           }) || null;
 
         return (
-          <Box>
+          <Box key={`${eventGroup.name}-${index}`}>
             <ListItem
               secondaryAction={
                 (!hasChildGroups && !hasChildEvents && deleteHandler && (
@@ -180,6 +180,5 @@ export const EventGroupList: React.FC<EventGroupListProps> = ({
       handleEventFinish,
     ]
   );
-  console.log(openMatrix);
   return <List>{groupsComponents}</List>;
 };
