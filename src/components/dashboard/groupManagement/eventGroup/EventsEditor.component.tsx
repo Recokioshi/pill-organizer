@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-import React, { useContext, useMemo } from "react";
+import React, { useCallback, useContext, useMemo } from "react";
 import { EventGroup } from "../../../../api/hooks/eventGroups";
 import { TDayEvent } from "../../../../api/types/dayEvent";
 import { TEventGroup } from "../../../../api/types/eventGroup";
@@ -58,24 +58,32 @@ export const EventsEditorComponent: React.FC<EventsEditorComponentProps> = ({
   const userData = useContext(UserDataContext);
   const events = useMemo(() => userData?.events || [], [userData]);
 
-  const handleEventSelect = (eventId: string) => async () => {
-    if (eventGroup.childrenEvents?.some(({ id }) => id === eventId)) {
-      await EventGroup(user!).removeEventFromGroup(eventGroup.id!, eventId);
-    } else {
-      await EventGroup(user!).addEventToGroup(eventGroup.id!, eventId);
-    }
-  };
-
-  const eventsComponents = events?.map((event: TDayEvent, index) => (
-    <EventRow
-      event={event}
-      key={`${event.title}-${index}`}
-      isIncluded={
-        eventGroup.childrenEvents?.some(({ id }) => id === event.id) || false
+  const handleEventSelect = useCallback(
+    (eventId: string) => async () => {
+      if (eventGroup.childrenEvents?.some(({ id }) => id === eventId)) {
+        await EventGroup(user!).removeEventFromGroup(eventGroup.id!, eventId);
+      } else {
+        await EventGroup(user!).addEventToGroup(eventGroup.id!, eventId);
       }
-      eventSelectHandler={handleEventSelect(event?.id!)}
-    />
-  ));
+    },
+    [eventGroup, user]
+  );
+
+  const eventsComponents = useMemo(
+    () =>
+      events?.map((event: TDayEvent, index) => (
+        <EventRow
+          event={event}
+          key={`${event.title}-${index}`}
+          isIncluded={
+            eventGroup.childrenEvents?.some(({ id }) => id === event.id) ||
+            false
+          }
+          eventSelectHandler={handleEventSelect(event?.id!)}
+        />
+      )),
+    [eventGroup.childrenEvents, events, handleEventSelect]
+  );
 
   return (
     <Box

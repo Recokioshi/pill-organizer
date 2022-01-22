@@ -105,32 +105,43 @@ export const GroupsEditorComponent: React.FC<GroupsEditorComponentProps> = ({
   const userData = useContext(UserDataContext);
   const groups = useMemo(() => userData?.groups || [], [userData]);
 
-  const handleAddSubgroup = async (subgroupName: string) => {
-    await EventGroup(user!).addGroupToGroup(eventGroup.id!, subgroupName);
-  };
+  const handleAddSubgroup = useCallback(
+    async (subgroupName: string) => {
+      await EventGroup(user!).addGroupToGroup(eventGroup.id!, subgroupName);
+    },
+    [eventGroup, user]
+  );
 
-  const handleDeleteSubgroup = (subgroupId: string) => async () => {
-    await EventGroup(user!).removeGroupFromGroup(eventGroup.id!, subgroupId);
-  };
+  const handleDeleteSubgroup = useCallback(
+    (subgroupId: string) => async () => {
+      await EventGroup(user!).removeGroupFromGroup(eventGroup.id!, subgroupId);
+    },
+    [eventGroup, user]
+  );
 
-  const groupsComponents = groups
-    ?.filter(
-      ({ id }) =>
-        id !== eventGroup?.id &&
-        eventGroup?.childrenGroups?.find(
-          ({ id: childrenId }) => childrenId === id
+  const groupsComponents = useMemo(
+    () =>
+      groups
+        ?.filter(
+          ({ id }) =>
+            id !== eventGroup?.id &&
+            eventGroup?.childrenGroups?.find(
+              ({ id: childrenId }) => childrenId === id
+            )
         )
-    )
-    .map((group: TEventGroup, index) => (
-      <GroupRow
-        group={group}
-        key={`${group.name}-${index}`}
-        isIncluded={
-          eventGroup.childrenGroups?.some(({ id }) => id === group.id) || false
-        }
-        deleteGroupHandler={handleDeleteSubgroup(group?.id!)}
-      />
-    ));
+        .map((group: TEventGroup, index) => (
+          <GroupRow
+            group={group}
+            key={`${group.name}-${index}`}
+            isIncluded={
+              eventGroup.childrenGroups?.some(({ id }) => id === group.id) ||
+              false
+            }
+            deleteGroupHandler={handleDeleteSubgroup(group?.id!)}
+          />
+        )),
+    [eventGroup, groups, handleDeleteSubgroup]
+  );
 
   return (
     <Box

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 
 // import Day from "./day/Day.component";
 // import { getSampleDay } from "../../api/hooks/dayData/getSampleDay";
@@ -41,20 +41,19 @@ const DashboardComponent: React.FC<DashboardComponentProps> = ({
     };
   }, [user]);
 
-  let pageToRender;
-  switch (currentPage) {
-    case PAGES.EVENT_MANAGER:
-      pageToRender = <EventManagerPage />;
-      break;
-    // case PAGES.DAY:
-    //   pageToRender = <DayPage />;
-    //   break;
-    case PAGES.GROUP_MANAGER:
-      pageToRender = <GroupManagerPage />;
-      break;
-    default:
-      pageToRender = <div>ERROR - Unknown page</div>;
-  }
+  const pageToRender = useMemo(() => {
+    switch (currentPage) {
+      case PAGES.EVENT_MANAGER:
+        return <EventManagerPage />;
+      // case PAGES.DAY:
+      //   pageToRender = <DayPage />;
+      //   break;
+      case PAGES.GROUP_MANAGER:
+        return <GroupManagerPage />;
+      default:
+        return <div>ERROR - Unknown page</div>;
+    }
+  }, [currentPage]);
 
   return (
     <UserDataContext.Provider value={{ groups, events }}>

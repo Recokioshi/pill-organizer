@@ -41,11 +41,11 @@ export const DayEventCard: React.FC<DayEventCardProps> = ({
     }
   );
 
-  const handleCapture = ({ target }: any) => {
+  const handleCapture = useCallback(({ target }: any) => {
     var file = target.files[0];
     setSelectedFile(file);
     setImageUrl(window.URL.createObjectURL(file));
-  };
+  }, []);
 
   const handleInputChange = useCallback(
     (valueSetter: React.Dispatch<React.SetStateAction<string>>) =>

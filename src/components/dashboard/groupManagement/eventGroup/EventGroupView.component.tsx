@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import React, { useContext, useMemo, useState } from "react";
+import React, { useCallback, useContext, useMemo, useState } from "react";
 import { EventGroup } from "../../../../api/hooks/eventGroups";
 import { TEventGroup } from "../../../../api/types/eventGroup";
 import { UserContext } from "../../../app/App";
@@ -96,24 +96,27 @@ const EventGroupView: React.FC<EventGroupViewProps> = ({
   const [eventsManagerVisible, setEventsManagerVisible] = useState(false);
   const [groupsManagerVisible, setGroupsManagerVisible] = useState(false);
 
-  const onToggleEventsManager = () => {
+  const onToggleEventsManager = useCallback(() => {
     setEventsManagerVisible(!eventsManagerVisible);
-  };
-  const onToggleGroupsManager = () => {
+  }, [eventsManagerVisible]);
+  const onToggleGroupsManager = useCallback(() => {
     setGroupsManagerVisible(!groupsManagerVisible);
-  };
+  }, [groupsManagerVisible]);
 
-  const handleEventFinish = (eventId: string) => async () => {
-    if (eventGroup.finishedEvents?.includes(eventId)) {
-      await EventGroup(user!).removeFinishedEvent(eventGroup.id!, eventId);
-    } else {
-      await EventGroup(user!).addFinishedEvent(eventGroup.id!, eventId);
-    }
-  };
+  const handleEventFinish = useCallback(
+    (eventId: string) => async () => {
+      if (eventGroup.finishedEvents?.includes(eventId)) {
+        await EventGroup(user!).removeFinishedEvent(eventGroup.id!, eventId);
+      } else {
+        await EventGroup(user!).addFinishedEvent(eventGroup.id!, eventId);
+      }
+    },
+    [user, eventGroup]
+  );
 
-  const handleResetFinished = async () => {
+  const handleResetFinished = useCallback(async () => {
     await EventGroup(user!).resetFinishedEvents(eventGroup.id!);
-  };
+  }, [user, eventGroup]);
 
   const childrenGroups: TEventGroup[] = useMemo(
     () =>
@@ -123,20 +126,29 @@ const EventGroupView: React.FC<EventGroupViewProps> = ({
     [eventGroup.childrenGroups, groups]
   );
 
-  const eventsComponents = events
-    .filter(({ id: eventId }) =>
-      eventGroup.childrenEvents?.find(({ id }) => id === eventId)
-    )
-    .map((event, index) => (
-      <Box onClick={handleEventFinish(event.id!)}>
-        <DayEventCard
-          event={event}
-          key={`${event.title}-${index}`}
-          readonly
-          finished={eventGroup.finishedEvents?.includes(event.id!)}
-        />
-      </Box>
-    ));
+  const eventsComponents = useMemo(
+    () =>
+      events
+        .filter(({ id: eventId }) =>
+          eventGroup.childrenEvents?.find(({ id }) => id === eventId)
+        )
+        .map((event, index) => (
+          <Box onClick={handleEventFinish(event.id!)}>
+            <DayEventCard
+              event={event}
+              key={`${event.title}-${index}`}
+              readonly
+              finished={eventGroup.finishedEvents?.includes(event.id!)}
+            />
+          </Box>
+        )),
+    [
+      eventGroup.childrenEvents,
+      eventGroup.finishedEvents,
+      events,
+      handleEventFinish,
+    ]
+  );
 
   return (
     <Box
