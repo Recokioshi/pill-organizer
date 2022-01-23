@@ -35,7 +35,7 @@ const GroupManagerComponent = () => {
 
   const deleteCardHandler = useCallback(
     (eventGroup) => async () => {
-      await EventGroup(user!).deleteEventGroup(eventGroup!.id!);
+      await EventGroup(user!).remove(eventGroup!.id!);
     },
     [user]
   );

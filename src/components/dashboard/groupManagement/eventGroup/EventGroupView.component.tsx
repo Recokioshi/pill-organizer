@@ -1,37 +1,127 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, IconButton, TextField, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import React, { useCallback, useEffect, useState } from "react";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
+import CancelIcon from "@mui/icons-material/Cancel";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { EventGroup } from "../../../../api/hooks/eventGroups";
 import { TEventGroup } from "../../../../api/types/eventGroup";
 import { EventsEditorComponent } from "./EventsEditor.component";
 import { GroupsEditorComponent } from "./GroupEditor.component";
 import { EventGroupCard } from "./EventGroupCard.component";
+import { UserContext } from "../../../app/App";
 
 type EventGroupHeaderProps = {
   names: string[];
   handleReturnGroup: () => void;
+  handleSetEdit: () => void;
+  handleSave: (newName: string) => void;
+  handleCancel: () => void;
+  isEditMode: boolean;
 };
 const EventGroupHeader: React.FC<EventGroupHeaderProps> = ({
   names,
   handleReturnGroup,
-}) => (
-  <Box
-    sx={{
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      width: 1,
-    }}
-  >
-    {!!names.length && (
-      <Button onClick={handleReturnGroup}>
-        <ArrowBackIcon />
-      </Button>
-    )}
-    <Typography>{names.join(" > ")}</Typography>
-    <div />
-  </Box>
-);
+  handleSetEdit,
+  handleSave,
+  handleCancel,
+  isEditMode,
+}) => {
+  const previousNames = useMemo(
+    () => names.slice(0, names.length - 1),
+    [names]
+  );
+  const lastName = useMemo(() => names[names.length - 1] || "", [names]);
+
+  const [currentGroupName, setCurrentGroupName] = useState("");
+
+  useEffect(() => {
+    setCurrentGroupName(lastName);
+  }, [lastName]);
+
+  const handleNameChange = useCallback((event) => {
+    setCurrentGroupName(event.target.value);
+  }, []);
+
+  const handleSaveButtonClick = useCallback(() => {
+    handleSave(`${currentGroupName}`);
+  }, [currentGroupName, handleSave]);
+
+  const handleCancelButtonClick = useCallback(() => {
+    handleCancel();
+  }, [handleCancel]);
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        width: 1,
+      }}
+    >
+      {!!names.length && (
+        <Button onClick={handleReturnGroup}>
+          <ArrowBackIcon />
+        </Button>
+      )}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
+        {!!previousNames.length && !isEditMode && (
+          <Typography
+            variant="subtitle1"
+            sx={{
+              marginRight: 1,
+            }}
+          >
+            {previousNames.join(" > ")} {" > "}
+          </Typography>
+        )}
+        {isEditMode ? (
+          <TextField
+            onChange={handleNameChange}
+            value={currentGroupName}
+            variant="standard"
+          />
+        ) : (
+          <Typography variant="h4">{lastName}</Typography>
+        )}
+      </Box>
+      {isEditMode ? (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-end",
+          }}
+        >
+          <IconButton onClick={handleCancelButtonClick}>
+            <CancelIcon />
+          </IconButton>
+          <IconButton color="primary" onClick={handleSaveButtonClick}>
+            <SaveIcon />
+          </IconButton>
+        </Box>
+      ) : (
+        <IconButton onClick={handleSetEdit}>
+          <EditIcon />
+        </IconButton>
+      )}
+    </Box>
+  );
+};
 
 type EventGroupFooterProps = {
   onManageChildEventsHandler: (() => void) | null;
@@ -79,8 +169,10 @@ const EventGroupView: React.FC<EventGroupViewProps> = ({
   handleReturnGroup,
   children,
 }) => {
+  const user = useContext(UserContext);
   const [eventsManagerVisible, setEventsManagerVisible] = useState(false);
   const [groupsManagerVisible, setGroupsManagerVisible] = useState(false);
+  const [isEditMode, setEditMode] = useState(false);
 
   useEffect(() => {
     setEventsManagerVisible(false);
@@ -93,6 +185,22 @@ const EventGroupView: React.FC<EventGroupViewProps> = ({
   const onToggleGroupsManager = useCallback(() => {
     setGroupsManagerVisible(!groupsManagerVisible);
   }, [groupsManagerVisible]);
+
+  const handleSetEdit = useCallback(() => {
+    setEditMode(true);
+  }, []);
+
+  const handleCancelEdit = useCallback(() => {
+    setEditMode(false);
+  }, []);
+
+  const handleEditSave = useCallback(
+    async (newName: string) => {
+      await EventGroup(user!).update(eventGroup!.id!, { name: newName });
+      setEditMode(false);
+    },
+    [eventGroup, user]
+  );
 
   return (
     <Box
@@ -113,6 +221,10 @@ const EventGroupView: React.FC<EventGroupViewProps> = ({
         <EventGroupHeader
           names={groupNamesInStack}
           handleReturnGroup={handleReturnGroup}
+          handleSetEdit={handleSetEdit}
+          handleSave={handleEditSave}
+          handleCancel={handleCancelEdit}
+          isEditMode={isEditMode}
         />
       </Box>
       <Box

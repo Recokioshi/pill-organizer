@@ -20,11 +20,11 @@ export const EventGroup = (user: User) => {
     return unsubscribe;
   };
 
-  const getEventGroup = async (id: string) => {
+  const get = async (id: string) => {
     return await getDoc(doc(eventGroupsRef, id));
   };
 
-  const setEventGroup = async (eventGroup: TEventGroup) => {
+  const set = async (eventGroup: TEventGroup) => {
     const id = uuidv4();
     const groupToSave: TEventGroup = {
       ...eventGroup,
@@ -43,7 +43,15 @@ export const EventGroup = (user: User) => {
     }
   };
 
-  const deleteEventGroup = async (eventGroupId: string) => {
+  const update = async (id: string, objectToUpdate: Partial<TEventGroup>) => {
+    try {
+      await updateDoc(doc(eventGroupsRef, id), objectToUpdate);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const remove = async (eventGroupId: string) => {
     try{
       await deleteDoc(doc(eventGroupsRef, eventGroupId));
     } catch (e) {
@@ -73,7 +81,7 @@ export const EventGroup = (user: User) => {
 
   const addGroupToGroup = async (eventGroupId: string, subgroupName: string) => {
     try{
-      const newGroupId = await setEventGroup({
+      const newGroupId = await set({
         name: subgroupName,
         master: false,
         description: "",
@@ -98,7 +106,7 @@ export const EventGroup = (user: User) => {
       await updateDoc(doc(eventGroupsRef, eventGroupId), {
         childrenGroups: arrayRemove(doc(eventGroupsRef, childGroupId)),
       });
-      await deleteEventGroup(childGroupId);
+      await remove(childGroupId);
     } catch (e) {
       console.error(e);
     }
@@ -136,9 +144,10 @@ export const EventGroup = (user: User) => {
   
   return {
     listenEventGroups,
-    getEventGroup,
-    setEventGroup,
-    deleteEventGroup,
+    get,
+    set,
+    remove,
+    update,
     addEventToGroup,
     removeEventFromGroup,
     addGroupToGroup,

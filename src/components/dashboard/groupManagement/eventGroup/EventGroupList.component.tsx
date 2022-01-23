@@ -88,6 +88,7 @@ const childrenEventsComponents = ({
       const finished = eventGroup.finishedEvents?.includes(id!) || false;
       return (
         <ChildrenEventComponent
+          key={event?.id}
           event={event!}
           finished={finished}
           handleEventFinish={handleEventFinish(eventGroup, event?.id!)}

@@ -17,7 +17,7 @@ export const EventGroupCard: React.FC<EventGroupProps> = ({
   const [name, setName] = useState(eventGroup?.name || "");
 
   const upload = useCallback(async () => {
-    await EventGroup(user!).setEventGroup({
+    await EventGroup(user!).set({
       name,
       description: "",
       effectiveTime: "",
