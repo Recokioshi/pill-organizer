@@ -4,9 +4,9 @@ import { EventGroup } from "../../../api/hooks/eventGroups";
 import { TEventGroup } from "../../../api/types/eventGroup";
 import { UserContext } from "../../app/App";
 import { UserDataContext } from "../Dashboard.component";
-import { EventGroupCard } from "./eventGroup/EventGroupCard.component";
 import EventGroupView from "./eventGroup/EventGroupView.component";
 import { EventGroupList } from "./eventGroup/EventGroupList.component";
+import { ChildrenEventsList } from "./eventGroup/ChildrenEventsList.component";
 
 const GroupManagerComponent = () => {
   const user = useContext(UserContext);
@@ -40,48 +40,49 @@ const GroupManagerComponent = () => {
     [user]
   );
 
-  const groupsToDisplay = useMemo(
+  const masterGroups = useMemo(
     () => groups?.filter(({ master }) => master),
     [groups]
   );
 
+  const groupToDisplay = useMemo(
+    () => groups.find(({ id }) => id === groupsStack[groupsStack.length - 1]),
+    [groups, groupsStack]
+  );
+  const childrenGroups: TEventGroup[] = useMemo(
+    () =>
+      groupToDisplay
+        ? (groupToDisplay.childrenGroups
+            ?.map((groupRef) =>
+              groups.find((group) => group.id === groupRef.id)
+            )
+            .filter((group) => !!group) as TEventGroup[]) || []
+        : masterGroups,
+    [groupToDisplay, groups, masterGroups]
+  );
+
   const componentToRender = useMemo(() => {
-    return groupsStack.length ? (
+    return (
       <EventGroupView
-        eventGroup={
-          groups.find(({ id }) => id === groupsStack[groupsStack.length - 1])!
-        }
+        eventGroup={groupToDisplay}
         groupNamesInStack={groupNamesInStack}
         handleReturnGroup={handleReturnGroup}
-        handleNextGroup={openNextGroup}
-        deleteHandler={deleteCardHandler}
-      />
-    ) : (
-      <Box
-        sx={{
-          display: "flex",
-          width: "100%",
-          justifyContent: "left",
-          flexWrap: "wrap",
-          flexDirection: "column",
-        }}
       >
+        {groupToDisplay && <ChildrenEventsList eventGroup={groupToDisplay} />}
         <EventGroupList
-          groups={groupsToDisplay}
-          deleteHandler={deleteCardHandler}
+          groups={childrenGroups}
           openNextGroupHandler={openNextGroup}
+          deleteHandler={deleteCardHandler}
         />
-        <EventGroupCard key={"newEventGroupCard"} master />
-      </Box>
+      </EventGroupView>
     );
   }, [
-    deleteCardHandler,
     groupNamesInStack,
-    groups,
-    groupsStack,
-    groupsToDisplay,
     handleReturnGroup,
+    groupToDisplay,
+    childrenGroups,
     openNextGroup,
+    deleteCardHandler,
   ]);
 
   return (

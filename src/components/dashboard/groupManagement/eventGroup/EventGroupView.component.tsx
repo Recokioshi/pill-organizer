@@ -1,25 +1,18 @@
 import { Box, Button, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import React, { useCallback, useContext, useMemo, useState } from "react";
-import { EventGroup } from "../../../../api/hooks/eventGroups";
+import React, { useCallback, useEffect, useState } from "react";
 import { TEventGroup } from "../../../../api/types/eventGroup";
-import { UserContext } from "../../../app/App";
-import { UserDataContext } from "../../Dashboard.component";
-import { DayEventCard } from "../../eventManagement/dayEventCard/DayEventCard.component";
-import { EventGroupList } from "./EventGroupList.component";
 import { EventsEditorComponent } from "./EventsEditor.component";
 import { GroupsEditorComponent } from "./GroupEditor.component";
+import { EventGroupCard } from "./EventGroupCard.component";
 
 type EventGroupHeaderProps = {
   names: string[];
   handleReturnGroup: () => void;
-  handleReset: () => void;
 };
 const EventGroupHeader: React.FC<EventGroupHeaderProps> = ({
   names,
   handleReturnGroup,
-  handleReset,
 }) => (
   <Box
     sx={{
@@ -30,13 +23,13 @@ const EventGroupHeader: React.FC<EventGroupHeaderProps> = ({
       width: 1,
     }}
   >
-    <Button onClick={handleReturnGroup}>
-      <ArrowBackIcon />
-    </Button>
+    {!!names.length && (
+      <Button onClick={handleReturnGroup}>
+        <ArrowBackIcon />
+      </Button>
+    )}
     <Typography>{names.join(" > ")}</Typography>
-    <Button onClick={handleReset}>
-      <RestartAltIcon />
-    </Button>
+    <div />
   </Box>
 );
 
@@ -76,25 +69,23 @@ const EventGroupFooter: React.FC<EventGroupFooterProps> = ({
 );
 
 type EventGroupViewProps = {
-  eventGroup: TEventGroup;
+  eventGroup?: TEventGroup;
   groupNamesInStack: string[];
   handleReturnGroup: () => void;
-  handleNextGroup: (nextGroup: TEventGroup) => () => void;
-  deleteHandler: (nextGroup: TEventGroup) => () => void;
 };
 const EventGroupView: React.FC<EventGroupViewProps> = ({
   eventGroup,
   groupNamesInStack,
   handleReturnGroup,
-  handleNextGroup,
-  deleteHandler,
+  children,
 }) => {
-  const user = useContext(UserContext);
-  const userData = useContext(UserDataContext);
-  const events = useMemo(() => userData?.events || [], [userData]);
-  const groups = useMemo(() => userData?.groups || [], [userData]);
   const [eventsManagerVisible, setEventsManagerVisible] = useState(false);
   const [groupsManagerVisible, setGroupsManagerVisible] = useState(false);
+
+  useEffect(() => {
+    setEventsManagerVisible(false);
+    setGroupsManagerVisible(false);
+  }, [eventGroup]);
 
   const onToggleEventsManager = useCallback(() => {
     setEventsManagerVisible(!eventsManagerVisible);
@@ -102,53 +93,6 @@ const EventGroupView: React.FC<EventGroupViewProps> = ({
   const onToggleGroupsManager = useCallback(() => {
     setGroupsManagerVisible(!groupsManagerVisible);
   }, [groupsManagerVisible]);
-
-  const handleEventFinish = useCallback(
-    (eventId: string) => async () => {
-      if (eventGroup.finishedEvents?.includes(eventId)) {
-        await EventGroup(user!).removeFinishedEvent(eventGroup.id!, eventId);
-      } else {
-        await EventGroup(user!).addFinishedEvent(eventGroup.id!, eventId);
-      }
-    },
-    [user, eventGroup]
-  );
-
-  const handleResetFinished = useCallback(async () => {
-    await EventGroup(user!).resetFinishedEvents(eventGroup.id!);
-  }, [user, eventGroup]);
-
-  const childrenGroups: TEventGroup[] = useMemo(
-    () =>
-      (eventGroup.childrenGroups
-        ?.map((groupRef) => groups.find((group) => group.id === groupRef.id))
-        .filter((group) => !!group) as TEventGroup[]) || [],
-    [eventGroup.childrenGroups, groups]
-  );
-
-  const eventsComponents = useMemo(
-    () =>
-      events
-        .filter(({ id: eventId }) =>
-          eventGroup.childrenEvents?.find(({ id }) => id === eventId)
-        )
-        .map((event, index) => (
-          <Box onClick={handleEventFinish(event.id!)}>
-            <DayEventCard
-              event={event}
-              key={`${event.title}-${index}`}
-              readonly
-              finished={eventGroup.finishedEvents?.includes(event.id!)}
-            />
-          </Box>
-        )),
-    [
-      eventGroup.childrenEvents,
-      eventGroup.finishedEvents,
-      events,
-      handleEventFinish,
-    ]
-  );
 
   return (
     <Box
@@ -169,7 +113,6 @@ const EventGroupView: React.FC<EventGroupViewProps> = ({
         <EventGroupHeader
           names={groupNamesInStack}
           handleReturnGroup={handleReturnGroup}
-          handleReset={handleResetFinished}
         />
       </Box>
       <Box
@@ -181,40 +124,33 @@ const EventGroupView: React.FC<EventGroupViewProps> = ({
         <Box
           sx={{
             display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            width: 1,
-          }}
-        >
-          {eventsComponents}
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
             flexDirection: "column",
             flexWrap: "wrap",
             width: 1,
           }}
         >
-          <EventGroupList
-            groups={childrenGroups}
-            openNextGroupHandler={handleNextGroup}
-            deleteHandler={deleteHandler}
-          />
+          {children}
         </Box>
       </Box>
-      {eventsManagerVisible && (
+      {eventsManagerVisible && eventGroup && (
         <EventsEditorComponent eventGroup={eventGroup} />
       )}
-      {groupsManagerVisible && (
-        <GroupsEditorComponent eventGroup={eventGroup} />
-      )}
+      {groupsManagerVisible &&
+        (eventGroup ? (
+          <GroupsEditorComponent eventGroup={eventGroup} />
+        ) : (
+          <EventGroupCard key={"newEventGroupCard"} master />
+        ))}
       <EventGroupFooter
         onManageChildEventsHandler={
-          !eventGroup?.childrenGroups?.length ? onToggleEventsManager : null
+          eventGroup && !eventGroup?.childrenGroups?.length
+            ? onToggleEventsManager
+            : null
         }
         onManageChildGroupsHandler={
-          !eventGroup?.childrenEvents?.length ? onToggleGroupsManager : null
+          !eventGroup?.childrenEvents?.length || !eventGroup
+            ? onToggleGroupsManager
+            : null
         }
       />
     </Box>

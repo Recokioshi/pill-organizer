@@ -7,12 +7,10 @@ import { UserContext } from "../../../app/App";
 
 type EventGroupProps = {
   eventGroup?: TEventGroup;
-  openNextGroup?: (nextGroup: TEventGroup) => void;
   master?: boolean;
 };
 export const EventGroupCard: React.FC<EventGroupProps> = ({
   eventGroup,
-  openNextGroup,
   master = false,
 }) => {
   const user = useContext(UserContext);
@@ -45,14 +43,24 @@ export const EventGroupCard: React.FC<EventGroupProps> = ({
   );
 
   return (
-    <Box sx={{ width: 1 }}>
+    <Box
+      sx={{
+        position: "fixed",
+        bottom: 50,
+        padding: 3,
+        display: "flex",
+        width: 1,
+        flexDirection: "column",
+        backgroundColor: "grey.200",
+      }}
+    >
       <form onSubmit={addCardHandler}>
         <Box
           sx={{
             display: "flex",
             flexDirection: "row",
             width: 1,
-            justifyContent: "space-between",
+            justifyContent: "space-evenly",
             "& .MuiTextField-root": { m: 1, width: "25ch" },
           }}
         >

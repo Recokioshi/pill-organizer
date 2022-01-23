@@ -1,4 +1,4 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, IconButton, TextField, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import React, { useCallback, useContext, useMemo, useState } from "react";
@@ -34,7 +34,7 @@ const NewSubgroupRow: React.FC<NewSubgroupRowProps> = ({
       sx={{
         display: "flex",
         width: 1,
-        justifyContent: "center",
+        justifyContent: "space-evenly",
         alignItems: "center",
         flexDirection: "row",
         padding: 1,
@@ -48,33 +48,24 @@ const NewSubgroupRow: React.FC<NewSubgroupRowProps> = ({
         value={subgroupName}
         onInput={handleInputChange(setSubgroupName)}
       />
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleAddSubgroupClick}
-      >
+      <IconButton color="primary" onClick={handleAddSubgroupClick}>
         <AddIcon />
-      </Button>
+      </IconButton>
     </Box>
   );
 };
 
 type GroupRowProps = {
   group?: TEventGroup;
-  isIncluded: boolean;
   deleteGroupHandler: () => void;
 };
 
-const GroupRow: React.FC<GroupRowProps> = ({
-  group,
-  isIncluded,
-  deleteGroupHandler,
-}) => (
+const GroupRow: React.FC<GroupRowProps> = ({ group, deleteGroupHandler }) => (
   <Box
     sx={{
       display: "flex",
       width: "100%",
-      justifyContent: "center",
+      justifyContent: "space-between",
       alignItems: "center",
       flexDirection: "row",
       padding: 1,
@@ -85,12 +76,14 @@ const GroupRow: React.FC<GroupRowProps> = ({
     }}
   >
     <Typography variant="h6">{group?.name}</Typography>
-    <Button
-      variant="contained"
-      color="primary"
+    <IconButton
+      sx={{
+        marginRight: 5,
+      }}
       onClick={deleteGroupHandler}
-      startIcon={<DeleteIcon />}
-    ></Button>
+    >
+      <DeleteIcon />
+    </IconButton>
   </Box>
 );
 
@@ -133,10 +126,6 @@ export const GroupsEditorComponent: React.FC<GroupsEditorComponentProps> = ({
           <GroupRow
             group={group}
             key={`${group.name}-${index}`}
-            isIncluded={
-              eventGroup.childrenGroups?.some(({ id }) => id === group.id) ||
-              false
-            }
             deleteGroupHandler={handleDeleteSubgroup(group?.id!)}
           />
         )),

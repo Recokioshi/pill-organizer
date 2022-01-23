@@ -23,7 +23,7 @@ const EventRow: React.FC<EventRowProps> = ({
     sx={{
       display: "flex",
       width: "100%",
-      justifyContent: "center",
+      justifyContent: "left",
       alignItems: "center",
       flexDirection: "row",
       padding: 1,
@@ -39,6 +39,11 @@ const EventRow: React.FC<EventRowProps> = ({
       width={50}
       height={50}
       alt={`${event?.title}-thumbnail`}
+    />
+    <Box
+      sx={{
+        marginRight: 1,
+      }}
     />
     <Typography variant="h6">
       {event?.title}

@@ -19,21 +19,96 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { UserDataContext } from "../../Dashboard.component";
 import { UserContext } from "../../../app/App";
 import { EventGroup } from "../../../../api/hooks/eventGroups";
+import { TDayEvent } from "../../../../api/types/dayEvent";
+import { ReactJSXElement } from "@emotion/react/types/jsx-namespace";
+import { User } from "firebase/auth";
+
+const DEFAULT_OPEN_STATE = true;
+
+type ChildrenEventComponentProps = {
+  event: TDayEvent;
+  finished: boolean;
+  handleEventFinish: () => void;
+};
+const ChildrenEventComponent: React.FC<ChildrenEventComponentProps> = ({
+  event,
+  finished,
+  handleEventFinish,
+}) => {
+  const sx = finished
+    ? {
+        pl: 4,
+        backgroundColor: "success.light",
+        "&:hover": {
+          backgroundColor: "success.main",
+        },
+      }
+    : {
+        pl: 4,
+      };
+  return (
+    <ListItemButton sx={sx} key={`${event?.title}`} onClick={handleEventFinish}>
+      {event?.imageUrl ? (
+        <ListItemAvatar>
+          <Avatar alt="Remy Sharp" src={event.imageUrl} />
+        </ListItemAvatar>
+      ) : (
+        <ListItemIcon>
+          <MedicationIcon />
+        </ListItemIcon>
+      )}
+
+      <ListItemText primary={event?.title} />
+    </ListItemButton>
+  );
+};
+
+type ChildrenEventsComponentsProps = {
+  eventGroup: TEventGroup;
+  events: TDayEvent[];
+  user: User;
+};
+const childrenEventsComponents = ({
+  user,
+  eventGroup,
+  events,
+}: ChildrenEventsComponentsProps): ReactJSXElement[] => {
+  const handleEventFinish =
+    (eventGroup: TEventGroup, eventId: string) => async () => {
+      if (eventGroup.finishedEvents?.includes(eventId)) {
+        await EventGroup(user!).removeFinishedEvent(eventGroup.id!, eventId);
+      } else {
+        await EventGroup(user!).addFinishedEvent(eventGroup.id!, eventId);
+      }
+    };
+
+  return (
+    eventGroup.childrenEvents?.map(({ id }) => {
+      const event = events.find(({ id: eventsId }) => eventsId === id);
+      const finished = eventGroup.finishedEvents?.includes(id!) || false;
+      return (
+        <ChildrenEventComponent
+          event={event!}
+          finished={finished}
+          handleEventFinish={handleEventFinish(eventGroup, event?.id!)}
+        />
+      );
+    }) || []
+  );
+};
 
 type EventGroupListProps = {
   groups: TEventGroup[];
   deleteHandler?: (group: TEventGroup) => () => void;
   openNextGroupHandler: (group: TEventGroup) => () => void;
 };
-
-const DEFAULT_OPEN_STATE = true;
-
 export const EventGroupList: React.FC<EventGroupListProps> = ({
   deleteHandler,
   groups,
   openNextGroupHandler,
 }) => {
-  const user = useContext(UserContext);
+  const user = useContext(UserContext) as User;
+
   const userData = useContext(UserDataContext);
   const events = useMemo(() => userData?.events || [], [userData]);
   const [openMatrix, setOpenMatrix] = React.useState<Record<string, boolean>>(
@@ -52,17 +127,6 @@ export const EventGroupList: React.FC<EventGroupListProps> = ({
       setOpenForGroup(groupId, !openMatrix[groupId]);
     },
     [openMatrix, setOpenForGroup]
-  );
-
-  const handleEventFinish = useCallback(
-    (eventGroup: TEventGroup, eventId: string) => async () => {
-      if (eventGroup.finishedEvents?.includes(eventId)) {
-        await EventGroup(user!).removeFinishedEvent(eventGroup.id!, eventId);
-      } else {
-        await EventGroup(user!).addFinishedEvent(eventGroup.id!, eventId);
-      }
-    },
-    [user]
   );
 
   useEffect(() => {
@@ -84,41 +148,11 @@ export const EventGroupList: React.FC<EventGroupListProps> = ({
         const hasChildEvents = !!eventGroup.childrenEvents?.length;
         const hasChildGroups = !!eventGroup.childrenGroups?.length;
 
-        const childrenEventsComponents =
-          eventGroup.childrenEvents?.map(({ id }, index) => {
-            const event = events.find(({ id: eventsId }) => eventsId === id);
-            const finished = eventGroup.finishedEvents?.includes(id!);
-            const sx = finished
-              ? {
-                  pl: 4,
-                  backgroundColor: "success.light",
-                  "&:hover": {
-                    backgroundColor: "success.main",
-                  },
-                }
-              : {
-                  pl: 4,
-                };
-            return (
-              <ListItemButton
-                sx={sx}
-                key={`${event?.title}-${index}`}
-                onClick={handleEventFinish(eventGroup, event?.id!)}
-              >
-                {event?.imageUrl ? (
-                  <ListItemAvatar>
-                    <Avatar alt="Remy Sharp" src={event.imageUrl} />
-                  </ListItemAvatar>
-                ) : (
-                  <ListItemIcon>
-                    <MedicationIcon />
-                  </ListItemIcon>
-                )}
-
-                <ListItemText primary={event?.title} />
-              </ListItemButton>
-            );
-          }) || null;
+        const childrenEvents = childrenEventsComponents({
+          eventGroup,
+          events,
+          user,
+        });
 
         return (
           <Box key={`${eventGroup.name}-${index}`}>
@@ -162,7 +196,7 @@ export const EventGroupList: React.FC<EventGroupListProps> = ({
                 unmountOnExit
               >
                 <List component="div" disablePadding>
-                  {childrenEventsComponents}
+                  {childrenEvents}
                 </List>
               </Collapse>
             )}
@@ -172,12 +206,12 @@ export const EventGroupList: React.FC<EventGroupListProps> = ({
       }),
     [
       groups,
+      events,
+      user,
       deleteHandler,
       toggleOpenHandler,
       openMatrix,
       openNextGroupHandler,
-      events,
-      handleEventFinish,
     ]
   );
   return <List>{groupsComponents}</List>;
