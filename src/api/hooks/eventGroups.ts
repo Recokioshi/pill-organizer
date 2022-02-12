@@ -112,6 +112,44 @@ export const EventGroup = (user: User) => {
     }
   };
 
+  const moveUp = async (eventGroupId: string, childGroupId: string) => {
+    try{
+      const eventGroupResponse = await get(eventGroupId);
+      const eventGroupData = eventGroupResponse.data() as TEventGroup;
+      const childrenGroups = eventGroupData.childrenGroups || [];
+      const index = childrenGroups.findIndex(group => group.id === childGroupId);
+      if(index > 0){
+        const newChildrenGroups = childrenGroups.slice();
+        const childGroup = newChildrenGroups.splice(index, 1)[0];
+        newChildrenGroups.splice(index - 1, 0, childGroup);
+        await updateDoc(doc(eventGroupsRef, eventGroupId), {
+          childrenGroups: newChildrenGroups,
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const moveDown = async (eventGroupId: string, childGroupId: string) => {
+    try{
+      const eventGroupResponse = await get(eventGroupId);
+      const eventGroupData = eventGroupResponse.data() as TEventGroup;
+      const childrenGroups = eventGroupData.childrenGroups || [];
+      const index = childrenGroups.findIndex(group => group.id === childGroupId);
+      if(index < childrenGroups.length - 1){
+        const newChildrenGroups = childrenGroups.slice();
+        const childGroup = newChildrenGroups.splice(index, 1)[0];
+        newChildrenGroups.splice(index + 1, 0, childGroup);
+        await updateDoc(doc(eventGroupsRef, eventGroupId), {
+          childrenGroups: newChildrenGroups,
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const addFinishedEvent = async (eventGroupId: string, finishedEventId: string) => {
     try {
       await updateDoc(doc(eventGroupsRef, eventGroupId), {
@@ -152,6 +190,8 @@ export const EventGroup = (user: User) => {
     removeEventFromGroup,
     addGroupToGroup,
     removeGroupFromGroup,
+    moveUp,
+    moveDown,
     addFinishedEvent,
     removeFinishedEvent,
     resetFinishedEvents,

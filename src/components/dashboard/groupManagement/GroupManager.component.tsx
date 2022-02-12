@@ -49,6 +49,25 @@ const GroupManagerComponent = () => {
     () => groups.find(({ id }) => id === groupsStack[groupsStack.length - 1]),
     [groups, groupsStack]
   );
+
+  const moveUpHandler = useCallback(
+    (eventGroup) => async () => {
+      if (groupToDisplay) {
+        await EventGroup(user!).moveUp(groupToDisplay.id!, eventGroup!.id!);
+      }
+    },
+    [groupToDisplay, user]
+  );
+
+  const moveDownHandler = useCallback(
+    (eventGroup) => async () => {
+      if (groupToDisplay) {
+        await EventGroup(user!).moveDown(groupToDisplay.id!, eventGroup!.id!);
+      }
+    },
+    [groupToDisplay, user]
+  );
+
   const childrenGroups: TEventGroup[] = useMemo(
     () =>
       groupToDisplay
@@ -73,6 +92,8 @@ const GroupManagerComponent = () => {
           groups={childrenGroups}
           openNextGroupHandler={openNextGroup}
           deleteHandler={deleteCardHandler}
+          moveUpHandler={groupToDisplay && moveUpHandler}
+          moveDownHandler={groupToDisplay && moveDownHandler}
         />
       </EventGroupView>
     );
@@ -83,6 +104,8 @@ const GroupManagerComponent = () => {
     childrenGroups,
     openNextGroup,
     deleteCardHandler,
+    moveUpHandler,
+    moveDownHandler,
   ]);
 
   return (

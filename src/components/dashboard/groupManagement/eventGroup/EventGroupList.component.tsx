@@ -13,6 +13,8 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MedicationIcon from "@mui/icons-material/Medication";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import React, { useCallback, useContext, useEffect, useMemo } from "react";
 import { TEventGroup } from "../../../../api/types/eventGroup";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
@@ -102,11 +104,15 @@ type EventGroupListProps = {
   groups: TEventGroup[];
   deleteHandler?: (group: TEventGroup) => () => void;
   openNextGroupHandler: (group: TEventGroup) => () => void;
+  moveUpHandler?: ((group: TEventGroup) => () => void) | null;
+  moveDownHandler?: ((group: TEventGroup) => () => void) | null;
 };
 export const EventGroupList: React.FC<EventGroupListProps> = ({
   deleteHandler,
   groups,
   openNextGroupHandler,
+  moveUpHandler,
+  moveDownHandler,
 }) => {
   const user = useContext(UserContext) as User;
 
@@ -159,28 +165,48 @@ export const EventGroupList: React.FC<EventGroupListProps> = ({
           <Box key={`${eventGroup.name}-${index}`}>
             <ListItem
               secondaryAction={
-                (!hasChildGroups && !hasChildEvents && deleteHandler && (
-                  <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    onClick={deleteHandler(eventGroup)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                )) ||
-                (hasChildEvents && (
-                  <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    onClick={toggleOpenHandler(eventGroup.id!)}
-                  >
-                    {openMatrix[eventGroup.id!] ? (
-                      <ExpandLess />
-                    ) : (
-                      <ExpandMore />
-                    )}
-                  </IconButton>
-                ))
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  {(!hasChildGroups && !hasChildEvents && deleteHandler && (
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={deleteHandler(eventGroup)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  )) ||
+                    (hasChildEvents && (
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={toggleOpenHandler(eventGroup.id!)}
+                      >
+                        {openMatrix[eventGroup.id!] ? (
+                          <ExpandLess />
+                        ) : (
+                          <ExpandMore />
+                        )}
+                      </IconButton>
+                    ))}
+                  {moveUpHandler && index > 0 && (
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={moveUpHandler(eventGroup)}
+                    >
+                      <ArrowUpwardIcon />
+                    </IconButton>
+                  )}
+                  {moveDownHandler && index < groups.length - 1 && (
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={moveDownHandler(eventGroup)}
+                    >
+                      <ArrowDownwardIcon />
+                    </IconButton>
+                  )}
+                </Box>
               }
             >
               <ListItemButton
@@ -209,6 +235,8 @@ export const EventGroupList: React.FC<EventGroupListProps> = ({
       groups,
       events,
       user,
+      moveUpHandler,
+      moveDownHandler,
       deleteHandler,
       toggleOpenHandler,
       openMatrix,
